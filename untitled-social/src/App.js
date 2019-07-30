@@ -1,20 +1,30 @@
 import React, {Component} from 'react';
-import {BrowserRouter, Route} from 'react-router-dom';
+import {BrowserRouter, Switch, Route} from 'react-router-dom';
 import {connect} from 'react-redux';
 
 import Home from './components/Home';
+import SignIn from './components/auth/SignIn';
+import SignUp from './components/auth/SignUp';
 
-import './App.css';
+import './styles/App.css';
+import SocialNavbar from './components/navigation/SocialNavbar';
 
 class App extends Component {
 
   render() {
     return (
-      <div className="App">
-        <BrowserRouter>
-          <Route path="/" component={Home} />
-        </BrowserRouter>
-      </div>
+      <BrowserRouter>
+        <div className="App">
+          <div className="navbar">
+            <SocialNavbar />
+          </div>
+          <Switch>
+            <Route path="/login" component={SignIn} />
+            <Route path="/signup" component={SignUp} />
+            <Route path="/" component={Home} />
+          </Switch>
+        </div>
+      </BrowserRouter>
     );
   }
 }

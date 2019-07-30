@@ -20,7 +20,33 @@
 }
 
 .App-link {
-  color: #61dafb;
+  color: #61d7fb;
+}
+
+.navbar-wrapper {
+  background-color: #377470;
+}
+
+.navbar {
+  margin-bottom: 40px;
+}
+
+.navbar-link {
+  text-decoration: none;
+}
+
+.navbar-link:hover {
+  text-decoration: none;
+}
+
+.hamburger {
+  border-width: 0px;
+
+  transition: ease 0.3s all;
+}
+
+.hamburger:hover {
+  background-color: #2f615e;
 }
 
 @keyframes App-logo-spin {

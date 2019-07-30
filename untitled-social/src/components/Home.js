@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Button from 'react-bootstrap/Button';
+import {Button} from 'react-bootstrap';
 
 import {connect} from 'react-redux';
 import {postTestData} from '../store/actions/testActions';
@@ -14,7 +14,7 @@ class Home extends Component {
      */
     handleClick = (e) => {
         e.preventDefault();
-        this.props.postTestData({name: 'ryan', bio: 'test'});
+        //this.props.postTestData({name: 'ryan', bio: 'test'});
     }
 
     render() {

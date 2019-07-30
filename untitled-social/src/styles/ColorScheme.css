@@ -1,0 +1,22 @@
+.primary {
+    background-color: #16a04d;
+    border-color: #16a04d;
+}
+
+.primary-button {
+    background-color: #16a04d;
+    border-color: #16a04d;
+    transition: ease 0.2s all;
+}
+.primary-button:hover {
+    background-color: #10793a;
+    border-color: #16a04d;
+}
+.primary-button:hover {
+    background-color: #10793a;
+    border-color: #16a04d;
+}
+.primary-button:active {
+    background-color: #10793a !important;
+    border-color: #30e478 !important;
+}
