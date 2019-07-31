@@ -2,14 +2,31 @@
  * Navbar links visible to user when signed in
  */
 import React from 'react';
+import {Redirect, Link} from 'react-router-dom';
 import {Nav} from 'react-bootstrap';
+import {connect} from 'react-redux';
 
-const SignedInLinks = () => {
+import {signOut} from '../../store/actions/authActions';
+
+const SignedInLinks = (props) => {
+    if(props.auth.isEmpty) return <Redirect to='/' />
     return(
         <Nav>
-            <Nav.Link as="div">Logout</Nav.Link>
+            <Link to='/'><Nav.Link as="div" onClick={props.signOut}>Logout</Nav.Link></Link>
         </Nav>
     )
 }
 
-export default SignedInLinks;
+const mapStateToProps = (state) => {
+    return {
+        auth: state.firebase.auth
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        signOut: () => dispatch(signOut())
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignedInLinks);

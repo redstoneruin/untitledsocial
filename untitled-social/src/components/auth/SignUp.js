@@ -3,10 +3,10 @@
  */
 import React, {Component} from 'react';
 import {Redirect} from 'react-router-dom';
-import {Container, Card, Row, Col, Form, Button} from 'react-bootstrap';
+import {Container, Card, Row, Col, Form, Button, Alert} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
-import {signUp} from '../../store/actions/authActions';
+import {signUp, clearAuthError} from '../../store/actions/authActions';
 
 import '../../styles/ColorScheme.css';
 
@@ -35,6 +35,12 @@ class SignUp extends Component {
         }
     }
 
+    /**
+     * Clear authentication errors on component mount
+     */
+    componentDidMount = () => {
+        this.props.clearAuthError();
+    }
 
     /**
      * validates fields in state
@@ -128,6 +134,7 @@ class SignUp extends Component {
      * Changes the state of this component as form is altered
      */
     handleChange = (e) => {
+        this.props.clearAuthError();
         // Set state to updated form value
         this.setState({
             [e.target.id]: e.target.value
@@ -138,8 +145,11 @@ class SignUp extends Component {
     }
 
     render() {
-        if(!this.props.auth.isEmpty) return <Redirect to="/feed" />
+        var errorMessage = this.props.authError ? (
+            <Alert variant='danger mt-2'>{this.props.authError}</Alert>
+        ) : null
 
+        if(!this.props.auth.isEmpty) return <Redirect to="/feed" />
         return (
             <Container className="pt-4">
                 <Row className="justify-content-center">
@@ -204,6 +214,7 @@ class SignUp extends Component {
                                 </Form>
                             </Card.Body>
                         </Card>
+                        {errorMessage}
                     </Col>
                 </Row>
             </Container>
@@ -213,13 +224,15 @@ class SignUp extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        auth: state.firebase.auth
+        auth: state.firebase.auth,
+        authError: state.auth.authError
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        signUp: (newUser) => dispatch(signUp(newUser))
+        signUp: (newUser) => dispatch(signUp(newUser)),
+        clearAuthError: () => dispatch(clearAuthError())
     }
 }
 
