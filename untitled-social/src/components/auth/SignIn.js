@@ -104,7 +104,7 @@ class SignIn extends Component {
                     <Col xs={12} sm={10} lg={8} xl={6}>
                         <Card className="shadow-sm">
                             <Card.Header as="h5">Login</Card.Header>
-                            <Card.Body className="text-left">
+                            <Card.Body className="text-left" style={{borderRadius: "3px"}}>
                                 <Form onSubmit={this.handleSubmit} noValidate>
                                     <Form.Group>
                                         <Form.Label>Email address</Form.Label>

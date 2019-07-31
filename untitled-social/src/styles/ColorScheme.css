@@ -10,13 +10,21 @@
 }
 .primary-button:hover {
     background-color: #10793a;
-    border-color: #16a04d;
-}
-.primary-button:hover {
-    background-color: #10793a;
-    border-color: #16a04d;
+    border-color: #10793a;
 }
 .primary-button:active {
     background-color: #10793a !important;
-    border-color: #30e478 !important;
+    border-color: #10793a !important;
+}
+
+.secondary {
+    background-color: #EAECF3;
+    border-color: #EAECF3;
+    color: black;
+}
+
+.tertiary {
+    background-color: #4F646F;
+    border-color: #4F646F;
+    color: white;
 }

@@ -12,7 +12,6 @@ const authReducer = (state = initState, action) => {
             }
         
         case 'SIGNUP_ERR':
-            console.log(action.err.code);
             authError = action.err.message;
             if(action.err.code === 'auth/email-already-in-use') {
                 authError = 'Email already in use';

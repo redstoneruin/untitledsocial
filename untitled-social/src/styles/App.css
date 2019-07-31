@@ -24,7 +24,7 @@
 }
 
 .navbar-wrapper {
-  background-color: #377470;
+  background-color: #424B54;
 }
 
 .navbar {
@@ -46,7 +46,7 @@
 }
 
 .hamburger:hover {
-  background-color: #2f615e;
+  background-color: #336b67;
 }
 
 @keyframes App-logo-spin {

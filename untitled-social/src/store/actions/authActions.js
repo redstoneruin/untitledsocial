@@ -10,29 +10,29 @@ export const signUp = (newUser) => {
         db.collection("users").where("username", "==", newUser.username).get()
         .then(snapshot => {
             // If user found, cannot create new user
-            if(snapshot) {
+            if(!snapshot.empty) {
                 dispatch({type: 'SIGNUP_ERR', err: {message: "Username already exists"}});
+            } else {
+                // Create new user with authentication
+                firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
+                // Attach displayname to firebase user document
+                .then(response => {
+                    console.log("Auth response:")
+                    console.log(response);
+                    db.collection('users').doc(response.user.uid).set({
+                        username: newUser.username
+                    })
+                    // signup successful
+                    .then(dispatch({type: 'SIGNUP_SUCCESS'}))
+                    // catch errors associated with posting data to firestore
+                    .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
+                })
+                // catch errors associated with authenticating user
+                .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
             }
         })
-        // only create new user if no user found
-        .catch(() => {
-            // Create new user with authentication
-            firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
-            // Attach displayname to firebase user document
-            .then(response => {
-                console.log("Auth response:")
-                console.log(response);
-                db.collection('users').doc(response.user.uid).set({
-                    username: newUser.username
-                })
-                // signup successful
-                .then(dispatch({type: 'SIGNUP_SUCCESS'}))
-                // catch errors associated with posting data to firestore
-                .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
-            })
-            // catch errors associated with authenticating user
-            .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
-        })
+        // Catch errors associated with finding user document
+        .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
     }
 }
 
@@ -41,12 +41,21 @@ export const signUp = (newUser) => {
  * @param {*} user - Object containing email and password
  */
 export const signIn = (user) => {
-    return(dispatch, getStore, {getFirebase}) => {
+    return(dispatch, getStore, {getFirebase, getFirestore}) => {
         const firebase = getFirebase();
+        const db = getFirestore();
         // sign in user with email and password given
         firebase.auth().signInWithEmailAndPassword(user.email, user.password)
         // dispatch success
-        .then(dispatch({type: 'LOGIN_SUCCESS'}))
+        .then((response) => {
+            db.collection("users").doc(response.user.uid).get().then(user => {
+                if(user) {
+                    dispatch({type: 'LOGIN_SUCCESS'});
+                } else {
+                    dispatch({type: 'LOGIN_ERR', err: {message: 'User data does not exist'}})
+                }
+            })
+        })
         // catch errors associated with signing in
         .catch(err => dispatch({type: 'LOGIN_ERR', err}))
     }
