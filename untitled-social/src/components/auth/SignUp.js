@@ -2,6 +2,7 @@
  * Contains form for signing up for an Untitled Social account
  */
 import React, {Component} from 'react';
+import {Redirect} from 'react-router-dom';
 import {Container, Card, Row, Col, Form, Button} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
@@ -20,6 +21,7 @@ class SignUp extends Component {
             username: "",
             submitted: false,
             validated: false,
+            emailPattern: new RegExp(/^(([^<>()\]\\.,;:\s@"]+(\.[^<>()\]\\.,;:\s@"]+)*)|(".+"))@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/),
             valid: {
                 email: false,
                 password: false,
@@ -59,7 +61,7 @@ class SignUp extends Component {
             valid.emailMessage = "Please enter an email";
         } 
         // test for email format
-        else if(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(this.state.email)) {
+        else if(this.state.emailPattern.test(this.state.email)) {
             valid.email = true;
             valid.emailMessage = null;
         } else {
@@ -91,8 +93,12 @@ class SignUp extends Component {
             valid.confirmPasswordMessage = null;
         }
 
+        var validated = valid.username && valid.email && valid.password && valid.confirmPassword;
+
+
         this.setState({
-            valid
+            valid,
+            validated
         })
     }
 
@@ -106,6 +112,15 @@ class SignUp extends Component {
 
         this.setState({
             submitted: true
+        }, () => {
+            // Log user in if fields validated
+            if(this.state.validated) {
+                this.props.signUp({
+                    username: this.state.username,
+                    email: this.state.email,
+                    password: this.state.password
+                });
+            }
         })
     }
 
@@ -123,75 +138,82 @@ class SignUp extends Component {
     }
 
     render() {
+        if(!this.props.auth.isEmpty) return <Redirect to="/feed" />
 
         return (
             <Container className="pt-4">
                 <Row className="justify-content-center">
                     <Col xs={12} sm={10} lg={8} xl={6}>
-                            <Card className="shadow-sm">
-                                <Card.Header as="h5">Sign Up</Card.Header>
-                                <Card.Body className="text-left">
-                                    <Form onSubmit={this.handleSubmit} noValidate>
-                                        <Form.Group>
-                                            <Form.Label>Username</Form.Label>
-                                            <Form.Control
-                                                required
-                                                onChange={this.handleChange} 
-                                                type="text" 
-                                                id="username"
-                                                isValid={this.state.valid.username}
-                                                isInvalid={this.state.submitted && !this.state.valid.username}>
-                                                </Form.Control>
-                                                <Form.Control.Feedback type="invalid">{this.state.valid.usernameMessage}</Form.Control.Feedback>
-                                        </Form.Group>
+                        <Card className="shadow-sm">
+                            <Card.Header as="h5">Sign Up</Card.Header>
+                            <Card.Body className="text-left">
+                                <Form onSubmit={this.handleSubmit} noValidate>
+                                    <Form.Group>
+                                        <Form.Label>Username</Form.Label>
+                                        <Form.Control
+                                            required
+                                            onChange={this.handleChange}
+                                            type="text"
+                                            id="username"
+                                            isValid={this.state.valid.username}
+                                            isInvalid={this.state.submitted && !this.state.valid.username}>
+                                        </Form.Control>
+                                        <Form.Control.Feedback type="invalid">{this.state.valid.usernameMessage}</Form.Control.Feedback>
+                                    </Form.Group>
 
-                                        <Form.Group>
-                                            <Form.Label>Email Address</Form.Label>
-                                            <Form.Control 
-                                                required
-                                                onChange={this.handleChange} 
-                                                type="email" 
-                                                id="email"
-                                                isValid={this.state.valid.email}
-                                                isInvalid={this.state.submitted && !this.state.valid.email}>
-                                                </Form.Control>
-                                                <Form.Control.Feedback type="invalid">{this.state.valid.emailMessage}</Form.Control.Feedback>
-                                        </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Email Address</Form.Label>
+                                        <Form.Control
+                                            required
+                                            onChange={this.handleChange}
+                                            type="email"
+                                            id="email"
+                                            isValid={this.state.valid.email}
+                                            isInvalid={this.state.submitted && !this.state.valid.email}>
+                                        </Form.Control>
+                                        <Form.Control.Feedback type="invalid">{this.state.valid.emailMessage}</Form.Control.Feedback>
+                                    </Form.Group>
 
-                                        <Form.Group>
-                                            <Form.Label>Password</Form.Label>
-                                            <Form.Control 
-                                                required
-                                                onChange={this.handleChange} 
-                                                type="password" 
-                                                id="password"
-                                                isValid={this.state.valid.password}
-                                                isInvalid={this.state.submitted && !this.state.valid.password}>
-                                                </Form.Control>
-                                                <Form.Control.Feedback type="invalid">{this.state.valid.passwordMessage}</Form.Control.Feedback>
-                                        </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Password</Form.Label>
+                                        <Form.Control
+                                            required
+                                            onChange={this.handleChange}
+                                            type="password"
+                                            id="password"
+                                            isValid={this.state.valid.password}
+                                            isInvalid={this.state.submitted && !this.state.valid.password}>
+                                        </Form.Control>
+                                        <Form.Control.Feedback type="invalid">{this.state.valid.passwordMessage}</Form.Control.Feedback>
+                                    </Form.Group>
 
-                                        <Form.Group>
-                                            <Form.Label>Confirm Password</Form.Label>
-                                            <Form.Control 
-                                                required
-                                                onChange={this.handleChange} 
-                                                type="password" 
-                                                id="confirmPassword"
-                                                isValid={this.state.valid.confirmPassword}
-                                                isInvalid={this.state.submitted && !this.state.valid.confirmPassword}>
-                                                </Form.Control>
-                                                <Form.Control.Feedback type="invalid">{this.state.valid.confirmPasswordMessage}</Form.Control.Feedback>
-                                        </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Confirm Password</Form.Label>
+                                        <Form.Control
+                                            required
+                                            onChange={this.handleChange}
+                                            type="password"
+                                            id="confirmPassword"
+                                            isValid={this.state.valid.confirmPassword}
+                                            isInvalid={this.state.submitted && !this.state.valid.confirmPassword}>
+                                        </Form.Control>
+                                        <Form.Control.Feedback type="invalid">{this.state.valid.confirmPasswordMessage}</Form.Control.Feedback>
+                                    </Form.Group>
 
-                                        <Button onClick={this.handleSubmit} type="submit" className="primary-button">Sign Up</Button>
-                                    </Form>
-                                </Card.Body>
-                            </Card>
+                                    <Button onClick={this.handleSubmit} type="submit" className="primary-button">Sign Up</Button>
+                                </Form>
+                            </Card.Body>
+                        </Card>
                     </Col>
                 </Row>
             </Container>
         );
+    }
+}
+
+const mapStateToProps = (state) => {
+    return {
+        auth: state.firebase.auth
     }
 }
 
@@ -201,4 +223,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapDispatchToProps)(SignUp);
+export default connect(mapStateToProps, mapDispatchToProps)(SignUp);
