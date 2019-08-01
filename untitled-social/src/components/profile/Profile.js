@@ -1,8 +1,11 @@
 import React, {Component} from 'react';
-import {Container, Card, Spinner, Row, Col} from 'react-bootstrap';
+import {Redirect} from 'react-router-dom';
+import {Container, Card, Spinner, Row, Col, Button} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import {getProfileByUsername} from '../../store/actions/authActions';
+
+import ProfileUpdateForm from './ProfileUpdateForm';
 
 /**
  * User profile component
@@ -12,7 +15,8 @@ class Profile extends Component {
         super(props);
 
         this.state = {
-            route: props.match.params.id
+            route: props.match.params.id,
+            updateFormVisible: false
         }
     }
 
@@ -36,6 +40,16 @@ class Profile extends Component {
             })
         }
     }
+
+    /**
+     * Toggle update form visibility
+     */
+    toggleProfileUpdate = () => {
+        this.setState({
+            updateFormVisible: !this.state.updateFormVisible
+        })
+    }
+
     
     render() {
 
@@ -56,6 +70,19 @@ class Profile extends Component {
                 </Row>
             </Container>
         )
+
+
+        // Profile update form to display to logged in users
+        var profileUpdateForm = this.state.updateFormVisible ? (
+            <ProfileUpdateForm toggleProfileUpdate={this.toggleProfileUpdate} />
+        ) : (
+            // only display update profile button if on current user's profile
+            this.props.loadedProfile && this.props.loadedProfile.username == this.props.profile.username ? (
+                <Button className="primary-button" onClick={this.toggleProfileUpdate}>Update Profile</Button>
+            ) : null
+        )
+
+        if(!this.props.auth.uid) return <Redirect to='/login' />
 
         // Display if load error present
         if(this.props.userLoadError) return (
@@ -79,12 +106,13 @@ class Profile extends Component {
             <Container className="pt-4">
                 <Row>
                     <Col>
-                        <Card>
+                        <Card className="shadow secondary">
                             <Card.Body className="text-left">
                                 <Card.Title>{this.props.loadedProfile.username}</Card.Title>
                                 <Card.Text>{this.props.loadedProfile.bio ? this.props.loadedProfile.bio : (
                                     "User has no bio." 
                                 )}</Card.Text>
+                                {profileUpdateForm}
                             </Card.Body>
                         </Card>
                     </Col>
