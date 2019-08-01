@@ -7,6 +7,7 @@ import {Redirect} from 'react-router-dom';
 import {connect} from 'react-redux';
 
 import {signIn, clearAuthError} from '../../store/actions/authActions';
+import {validateEmail, validatePassword} from '../../shared/validation';
 
 class SignIn extends Component {
     constructor(props) {
@@ -38,29 +39,10 @@ class SignIn extends Component {
      * Validates email and password in state as formatted correctly
      */
     validateState = () => {
-        var valid = {}
+        var validEmail = validateEmail(this.state.email);
+        var validPassword = validatePassword(this.state.password);
 
-        if(!this.state.email) {
-            valid.email = false;
-            valid.emailMessage = "Please enter your email";
-        } else if(this.state.emailPattern.test(this.state.email)) {
-            valid.email = true;
-            valid.emailMessage = null;
-        } else {
-            valid.email = false;
-            valid.emailMessage = "Please enter a valid email address";
-        }
-
-        if(!this.state.password) {
-            valid.password = false;
-            valid.passwordMessage = "Please enter your password";
-        } else if(this.state.password.length < 8){
-            valid.password = false;
-            valid.passwordMessage = "Password too short";
-        } else {
-            valid.password = true;
-            valid.passwordMessage = null;
-        }
+        var valid = Object.assign(validEmail, validPassword);
 
         var validated = valid.email && valid.password;
 

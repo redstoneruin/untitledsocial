@@ -6,6 +6,7 @@ import {connect} from 'react-redux';
 import {getProfileByUsername} from '../../store/actions/authActions';
 
 import ProfileUpdateForm from './ProfileUpdateForm';
+import CreatePost from '../feed/CreatePost';
 
 /**
  * User profile component
@@ -93,6 +94,10 @@ class Profile extends Component {
             ) : null
         )
 
+        var createPostForm = this.props.loadedProfile && this.props.loadedProfile.username === this.props.profile.username ? (
+            <CreatePost />
+        ) : null
+
         if(!this.props.auth.uid) return <Redirect to='/login' />
 
         // Display if load error present
@@ -128,6 +133,7 @@ class Profile extends Component {
                         </Card>
                     </Col>
                 </Row>
+                {createPostForm}
             </Container>
         )
     }

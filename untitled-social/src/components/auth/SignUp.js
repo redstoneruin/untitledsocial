@@ -7,6 +7,7 @@ import {Container, Card, Row, Col, Form, Button, Alert} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import {signUp, clearAuthError} from '../../store/actions/authActions';
+import {validateUsername, validatePassword, validateEmail} from '../../shared/validation';
 
 import '../../styles/ColorScheme.css';
 
@@ -49,44 +50,12 @@ class SignUp extends Component {
         
         var valid = {}
 
-        // Validate username
-        if(!this.state.username) {
-            valid.username = false;
-            valid.usernameMessage = "Please enter a username";
-        } else if(this.state.username.length < 5) {
-            valid.username = false;
-            valid.usernameMessage = "Username must be more than 5 characters";
-        } else {
-            valid.username = true;
-            valid.usernameMessage = null;
-        }
+        var usernameValid = validateUsername(this.state.username);
 
-        // Validate email
-        if(!this.state.email) {
-            valid.email = false;
-            valid.emailMessage = "Please enter an email";
-        } 
-        // test for email format
-        else if(this.state.emailPattern.test(this.state.email)) {
-            valid.email = true;
-            valid.emailMessage = null;
-        } else {
-            valid.email = false;
-            valid.emailMessage = "Please enter a valid email"
-        }
+        var emailValid = validateEmail(this.state.email);
 
-        // validate password
-        if(!this.state.password) {
-            valid.password = false;
-            valid.passwordMessage = "Please enter a password";
-        } else if(this.state.password.length < 8) {
-            valid.password = false;
-            valid.passwordMessage = "Password must be 8 characters or more";
-        } else {
-            valid.password = true;
-            valid.passwordMessage = null;
-        }
-
+        var passwordValid = validatePassword(this.state.password);
+        
         // validate comfirmPassword
         if(!this.state.confirmPassword) {
             valid.confirmPassword = false;
@@ -98,6 +67,8 @@ class SignUp extends Component {
             valid.confirmPassword = true;
             valid.confirmPasswordMessage = null;
         }
+
+        valid = Object.assign(valid, usernameValid, emailValid, passwordValid);
 
         var validated = valid.username && valid.email && valid.password && valid.confirmPassword;
 
