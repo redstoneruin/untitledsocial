@@ -1,6 +1,3 @@
-/**
- * Navbar component fixed at top of site
- */
 import React from 'react';
 import {NavLink} from 'react-router-dom';
 import {Navbar} from 'react-bootstrap';
@@ -11,6 +8,9 @@ import SignedOutLinks from './SignedOutLinks';
 
 import '../../styles/App.css';
 
+/**
+ * Navbar component fixed at top of site
+ */
 const SocialNavbar = (props) => {
     
     // Determine if user is signed in, provide correct links

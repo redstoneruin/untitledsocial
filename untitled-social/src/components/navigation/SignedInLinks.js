@@ -1,6 +1,3 @@
-/**
- * Navbar links visible to user when signed in
- */
 import React from 'react';
 import {Redirect, Link} from 'react-router-dom';
 import {Nav} from 'react-bootstrap';
@@ -8,10 +5,14 @@ import {connect} from 'react-redux';
 
 import {signOut} from '../../store/actions/authActions';
 
+/**
+ * Navbar links visible to user when signed in
+ */
 const SignedInLinks = (props) => {
     if(props.auth.isEmpty) return <Redirect to='/' />
     return(
         <Nav>
+            <Link to={'/user/' + props.profile.username}><Nav.Link as="div">Profile</Nav.Link></Link>
             <Link to='/'><Nav.Link as="div" onClick={props.signOut}>Logout</Nav.Link></Link>
         </Nav>
     )
@@ -19,7 +20,8 @@ const SignedInLinks = (props) => {
 
 const mapStateToProps = (state) => {
     return {
-        auth: state.firebase.auth
+        auth: state.firebase.auth,
+        profile: state.firebase.profile
     }
 }
 

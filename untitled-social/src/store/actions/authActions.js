@@ -85,3 +85,29 @@ export const clearAuthError = () => {
         dispatch({type: 'CLEAR_AUTH_ERR'});
     }
 }
+
+/**
+ * Load user data into auth reducer by username,
+ * without access to uid
+ */
+export const getProfileByUsername = (username) => {
+    return(dispatch, getStore, {getFirestore}) => {
+
+        const db = getFirestore();
+
+        db.collection("users").where("username", "==", username).get()
+        // Get profile data after async query
+        .then(querySnapshot => {
+            if(querySnapshot.empty) {
+                dispatch({type: 'USER_LOAD_ERR', err: {message: 'User not found'}});
+            } else {
+                // Dispatch to load profile into store
+                querySnapshot.forEach(doc => {
+                    dispatch({type: 'USER_LOADED', user: doc.data()});
+                })
+            }
+        })
+        // Catch errors associated with firestore query
+        .catch(err => dispatch({type: 'USER_LOAD_ERR', err}));
+    }
+}

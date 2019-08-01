@@ -70,8 +70,12 @@ class SignIn extends Component {
         })
     }
 
+    /**
+     * Handle submitting of the sign in form
+     */
     handleSubmit = (e) => {
         e.preventDefault();
+        // validate state of components
         this.validateState();
         this.setState({
             submitted: true
@@ -83,16 +87,23 @@ class SignIn extends Component {
         })
     }
 
+    /**
+     * Update state when changes made to form elements
+     */
     handleChange = (e) => {
         this.props.clearAuthError();
         this.setState({
             [e.target.id]: e.target.value
         }, () => {
+            // Validate state after changes
             this.validateState();
         });
     }
 
     render() {
+        /**
+         * Determine if error message is to be shown
+         */
         var errorMessage = this.props.authError ? (
             <Alert variant='danger mt-2'>{this.props.authError}</Alert>
         ) : null

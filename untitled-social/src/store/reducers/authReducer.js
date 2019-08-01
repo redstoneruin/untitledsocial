@@ -1,10 +1,41 @@
+/**
+ * Initial state of authentication store
+ */
 const initState = {
-    authError: null
+    authError: null,
+    loadedProfile: null,
+    userLoadError: null
 }
 
+/**
+ * Redux reducer for authentication and profile functions
+ * @param {Object} - Updated state of the auth store
+ * @param {action} - Action object with type
+ */
 const authReducer = (state = initState, action) => {
     var authError;
     switch(action.type) {
+        // Loading user in store for viewing profile, expects user field
+        case 'USER_LOADED':
+            return {
+                ...state,
+                loadedProfile: action.user,
+                userLoadError: null
+            }
+
+        case 'USER_LOAD_ERR':
+            return {
+                ...state,
+                loadedProfile: null,
+                userLoadError: action.err.message
+            }
+
+        case 'CLEAR_USER_LOAD_ERR':
+            return {
+                ...state,
+                userLoadError: null
+            }
+
         case 'SIGNUP_SUCCESS':
             return {
                 ...state,
