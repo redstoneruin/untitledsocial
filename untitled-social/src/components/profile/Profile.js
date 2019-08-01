@@ -77,7 +77,7 @@ class Profile extends Component {
             <ProfileUpdateForm toggleProfileUpdate={this.toggleProfileUpdate} />
         ) : (
             // only display update profile button if on current user's profile
-            this.props.loadedProfile && this.props.loadedProfile.username == this.props.profile.username ? (
+            this.props.loadedProfile && this.props.loadedProfile.username === this.props.profile.username ? (
                 <Button className="primary-button" onClick={this.toggleProfileUpdate}>Update Profile</Button>
             ) : null
         )

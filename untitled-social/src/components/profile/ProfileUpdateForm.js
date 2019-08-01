@@ -16,13 +16,20 @@ class ProfileUpdateForm extends Component {
         }
     }
 
+    /**
+     * Updates user profile when button clicked
+     */
+    handleUpateProfile = (e) => {
+        e.preventDefault();
+    }
+
     render() {
         return (
             <Container className="pt-4">
                 <Row>
                     <Col>
-                        <Card className="tertiary">
-                            <Card.Body className="shadow-sm">
+                        <Card className="tertiary shadow">
+                            <Card.Body>
                                 <Card.Title>Update Profile</Card.Title>
                                 <Form>
                                     <Form.Group>
@@ -46,7 +53,12 @@ class ProfileUpdateForm extends Component {
                                     </Form.Group>
                                 </Form>
                                 <div className="text-right">
-                                    <Button variant='danger' onClick={this.props.toggleProfileUpdate}>Cancel</Button>
+                                    <Button 
+                                    className="primary-button shadow-sm mr-2" 
+                                    onClick={this.handleUpateProfile}>Update Profile</Button>
+                                    <Button 
+                                    className="shadow-sm" 
+                                    variant='danger' onClick={this.props.toggleProfileUpdate}>Cancel</Button>
                                 </div>
                             </Card.Body>
                         </Card>
