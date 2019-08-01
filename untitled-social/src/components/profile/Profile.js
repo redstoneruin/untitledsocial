@@ -24,6 +24,13 @@ class Profile extends Component {
      * Get profile data on component mount
      */
     componentDidMount = () => {
+        this.updateUserProfileInfo();
+    }
+
+    /**
+     * Update profile information
+     */
+    updateUserProfileInfo = () => {
         this.props.getProfileByUsername(this.props.match.params.id);
     }
 
@@ -33,7 +40,8 @@ class Profile extends Component {
     componentDidUpdate = () => {
         if(this.props.match.params.id !== this.state.route) {
             this.setState({
-                route: this.props.match.params.id
+                route: this.props.match.params.id,
+                updateFormVisible: false
             }, () => {
                 // after setting state, update profile data
                 this.props.getProfileByUsername(this.state.route);
@@ -74,7 +82,10 @@ class Profile extends Component {
 
         // Profile update form to display to logged in users
         var profileUpdateForm = this.state.updateFormVisible ? (
-            <ProfileUpdateForm toggleProfileUpdate={this.toggleProfileUpdate} />
+            <ProfileUpdateForm 
+            toggleProfileUpdate={this.toggleProfileUpdate} 
+            updateUserProfileInfo={this.updateUserProfileInfo}
+            route={this.state.route} />
         ) : (
             // only display update profile button if on current user's profile
             this.props.loadedProfile && this.props.loadedProfile.username === this.props.profile.username ? (
@@ -110,7 +121,7 @@ class Profile extends Component {
                             <Card.Body className="text-left">
                                 <Card.Title>{this.props.loadedProfile.username}</Card.Title>
                                 <Card.Text>{this.props.loadedProfile.bio ? this.props.loadedProfile.bio : (
-                                    "User has no bio." 
+                                    null
                                 )}</Card.Text>
                                 {profileUpdateForm}
                             </Card.Body>

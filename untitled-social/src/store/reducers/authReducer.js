@@ -4,7 +4,8 @@
 const initState = {
     authError: null,
     loadedProfile: null,
-    userLoadError: null
+    userLoadError: null,
+    profileUpdateError: null
 }
 
 /**
@@ -15,6 +16,18 @@ const initState = {
 const authReducer = (state = initState, action) => {
     var authError;
     switch(action.type) {
+        case 'PROFILE_UPDATE_SUCCESS':
+            return {
+                ...state,
+                profileUpdateError: null
+            }
+
+        case 'PROFILE_UPDATE_ERR':
+            return {
+                ...state,
+                profileUpdateError: action.err.message
+            }
+
         // Loading user in store for viewing profile, expects user field
         case 'USER_LOADED':
             return {

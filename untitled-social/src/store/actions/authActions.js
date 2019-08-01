@@ -89,6 +89,7 @@ export const clearAuthError = () => {
 /**
  * Load user data into auth reducer by username,
  * without access to uid
+ * @param {string} username - User's username
  */
 export const getProfileByUsername = (username) => {
     return(dispatch, getStore, {getFirestore}) => {
@@ -109,5 +110,50 @@ export const getProfileByUsername = (username) => {
         })
         // Catch errors associated with firestore query
         .catch(err => dispatch({type: 'USER_LOAD_ERR', err}));
+    }
+}
+
+/**
+ * Update user's profile data with new object
+ * @param {string} uid - User's user id
+ * @param {Object} profile - Profile object to replace for user (must be logged in)
+ */
+export const updateProfile = (uid, profile) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        // return promise to perform async functions
+        return new Promise((resolve, reject) => {
+            const db = getFirestore();
+            var profileRef = db.collection("users").doc(uid);
+
+            // Check if username already taken
+            db.collection("users").where("username", "==", profile.username).get()
+                .then(snapshot => {
+                    // if username DNE or this user owns this username, allow update
+                    if (snapshot.empty || snapshot.docs[0].data().username === getStore().firebase.profile.username) {
+                        // Update firestore at user reference to new object
+                        profileRef.update(profile)
+                            // Dispatch success after async update
+                            .then(dispatch({ type: 'PROFILE_UPDATE_SUCCESS' }))
+                            // resolve function
+                            .then(() => {return resolve()})
+                            // catch errors associated with updating
+                            .catch(err => dispatch({ type: 'PROFILE_UPDATE_ERR', err }));
+                    } else {
+                        var err = {message: "Username already taken."}
+                        dispatch({ type: 'PROFILE_UPDATE_ERR', err });
+                    }
+                })
+                // catch errors associated with querying
+                .catch(err => dispatch({ type: 'PROFILE_UPDATE_ERR', err }));
+        })
+    }
+}
+
+/**
+* Clears current profile update error
+*/
+export const clearProfileUpdateError = () => {
+    return (dispatch) => {
+        dispatch({ type: 'PROFILE_UPDATE_SUCCESS' });
     }
 }
