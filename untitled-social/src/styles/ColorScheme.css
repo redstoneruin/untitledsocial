@@ -28,3 +28,12 @@
     border-color: #9bb2be;
     color: white;
 }
+
+.selection-hover-fade {
+    transition: ease 0.5s all;
+}
+
+.selection-hover-fade:hover {
+    border-color: #9bb2be;
+    background-color: #9bb2be;
+}

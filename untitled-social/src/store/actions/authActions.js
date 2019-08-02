@@ -20,7 +20,8 @@ export const signUp = (newUser) => {
                     console.log("Auth response:")
                     console.log(response);
                     db.collection('users').doc(response.user.uid).set({
-                        username: newUser.username
+                        username: newUser.username,
+                        joinTime: new Date()
                     })
                     // signup successful
                     .then(dispatch({type: 'SIGNUP_SUCCESS'}))

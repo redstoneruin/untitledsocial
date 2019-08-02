@@ -115,10 +115,10 @@ class ProfileUpdateForm extends Component {
         if(this.state.redirect) return <Redirect to={'/user/' + this.props.profile.username} />
 
         return (
-            <Container className="pt-4">
+            <Container className="pt-4 pb-4">
                 <Row>
                     <Col>
-                        <Card className="tertiary shadow">
+                        <Card className="tertiary shadow text-left">
                             <Card.Body>
                                 <Card.Title>Update Profile</Card.Title>
                                 <Form onSubmit={this.handleUpdateProfile}>
@@ -152,14 +152,14 @@ class ProfileUpdateForm extends Component {
                                 </Form>
                                 <div className="text-right">
                                     <Button 
-                                    className="primary-button shadow-sm mr-2" 
-                                    onClick={this.handleUpdateProfile}>Update Profile</Button>
-                                    <Button 
-                                    className="shadow-sm" 
+                                    className="shadow-sm mr-2" 
                                     variant='danger' onClick={() => {
                                         this.props.clearProfileUpdateError();
                                         this.props.toggleProfileUpdate();
                                     }}>Cancel</Button>
+                                    <Button 
+                                    className="primary-button shadow-sm" 
+                                    onClick={this.handleUpdateProfile}>Update Profile</Button>
                                 </div>
                             </Card.Body>
                         </Card>

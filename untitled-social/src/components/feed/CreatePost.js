@@ -136,6 +136,7 @@ class CreatePost extends Component {
                                     </Form.Group>
                                 </Form>
                                 <div className="text-right">
+                                    <Button variant="danger" className="mr-2" onClick={this.props.toggleCreatePostForm}>Cancel</Button>
                                     <Button className="primary-button" onClick={this.handleSubmit}>Post</Button>
                                 </div>
                         </Card.Body>

@@ -17,7 +17,8 @@ class Profile extends Component {
 
         this.state = {
             route: props.match.params.id,
-            updateFormVisible: false
+            updateFormVisible: false,
+            createPostFormVisible: false
         }
     }
 
@@ -58,6 +59,14 @@ class Profile extends Component {
             updateFormVisible: !this.state.updateFormVisible
         })
     }
+    /**
+     * Toggle create post form visibility
+     */
+    toggleCreatePostForm = () => {
+        this.setState({
+            createPostFormVisible: !this.state.createPostFormVisible
+        })
+    }
 
     
     render() {
@@ -90,12 +99,19 @@ class Profile extends Component {
         ) : (
             // only display update profile button if on current user's profile
             this.props.loadedProfile && this.props.loadedProfile.username === this.props.profile.username ? (
-                <Button className="primary-button" onClick={this.toggleProfileUpdate}>Update Profile</Button>
+                <Button variant="info" className="mr-2 shadow-sm" onClick={this.toggleProfileUpdate}>Update Profile</Button>
             ) : null
         )
 
-        var createPostForm = this.props.loadedProfile && this.props.loadedProfile.username === this.props.profile.username ? (
-            <CreatePost />
+        // Determine whether to show create post form or button to expand
+        var createPostForm =  this.state.createPostFormVisible ? (
+            <CreatePost toggleCreatePostForm={this.toggleCreatePostForm} />
+        ) :  null
+
+        var createPostButton = this.props.loadedProfile 
+        && !this.state.createPostFormVisible
+        && this.props.loadedProfile.username === this.props.profile.username ? (
+            <Button className="primary-button shadow-sm mr-2" onClick={this.toggleCreatePostForm}>Create Post</Button>
         ) : null
 
         if(!this.props.auth.uid) return <Redirect to='/login' />
@@ -128,12 +144,15 @@ class Profile extends Component {
                                 <Card.Text>{this.props.loadedProfile.bio ? this.props.loadedProfile.bio : (
                                     null
                                 )}</Card.Text>
-                                {profileUpdateForm}
+                                <div className="text-right">
+                                    {profileUpdateForm}
+                                    {createPostButton}
+                                </div>
                             </Card.Body>
                         </Card>
+                        {createPostForm}
                     </Col>
                 </Row>
-                {createPostForm}
             </Container>
         )
     }

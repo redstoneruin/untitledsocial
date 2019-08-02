@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, Redirect} from 'react-router-dom';
 import {Container, Card, CardDeck, Row, Col, Button} from 'react-bootstrap';
 
 import {connect} from 'react-redux';
@@ -12,6 +12,7 @@ import '../styles/ColorScheme.css';
 class Home extends Component {
 
     render() {
+        if(!this.props.auth.isEmpty) return <Redirect to="/feed" />;
         return(
             <Container>
                 <Row className="justify-content-center text-left">
@@ -64,8 +65,7 @@ class Home extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        auth: state.firebase.auth,
-        profile: state.firebase.profile
+        auth: state.firebase.auth
     }
 }
 

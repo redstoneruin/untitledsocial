@@ -14,11 +14,12 @@ import '../../styles/App.css';
 const SocialNavbar = (props) => {
     
     // Determine if user is signed in, provide correct links
-    var links = props.auth.isEmpty ? <SignedOutLinks /> : <SignedInLinks />
+    var links = props.auth.isEmpty ? <SignedOutLinks /> : <SignedInLinks />;
+    var logoLink = props.auth.isEmpty ?  "/" : "/feed";
 
     return(
         <Navbar variant="dark" expand="md" fixed="top" className="navbar-wrapper">
-            <NavLink to="/"><Navbar.Brand>Untitled Social</Navbar.Brand></NavLink>
+            <NavLink to={logoLink}><Navbar.Brand>Untitled Social</Navbar.Brand></NavLink>
             <Navbar.Toggle aria-controls="basic-navbar-nav" className="hamburger"/>
             <Navbar.Collapse className="justify-content-end" id="basic-navbar-nav">
                 {links}
