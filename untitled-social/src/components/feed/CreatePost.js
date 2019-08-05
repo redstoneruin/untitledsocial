@@ -20,7 +20,8 @@ class CreatePost extends Component {
                 desc: null,
                 author: this.props.profile.username,
                 time: null,
-                content: null
+                content: null,
+                topic: null
             },
             valid: {
                 title: false,
@@ -56,6 +57,7 @@ class CreatePost extends Component {
             post.time = new Date();
             post.content = "";
             post.type = "text";
+            post.topic = "";
 
             // create new post
             // this.props.createUserPost(post);

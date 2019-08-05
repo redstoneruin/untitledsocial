@@ -3,7 +3,8 @@
  */
 const initState = {
     userPosts: null,
-    userPostError: null
+    userPostError: null,
+    postSnapError: null
 }
 
 /**
@@ -13,6 +14,19 @@ const initState = {
  */
 const postReducer = (state = initState, action) => {
     switch(action.type) {
+        case 'POST_SNAP_SUCCESS':
+            return {
+                ...state,
+                postSnapError: null
+            }
+
+        case 'POST_SNAP_ERR':
+            console.log(action.err);
+            return {
+                ...state,
+                postSnapError: action.err.message
+            }
+
         case 'USER_POST_SUCCESS':
             return {
                 ...state,
