@@ -12,6 +12,9 @@ export const validateUsername = (username) => {
     } else if(username.length < 5) {
         valid.username = false;
         valid.usernameMessage = "Username too short.";
+    } else if(username.length > 30) {
+        valid.username = false;
+        valid.usernameMessage = "Username too long.";
     } else {
         valid.username = true;
         valid.usernameMessage = null;
@@ -112,10 +115,10 @@ export const validateDesc = (desc) => {
 
     if(!desc) {
         valid.desc = false;
-        valid.descMessage = "Please enter a title";
+        valid.descMessage = "Please enter a description.";
     } else if(desc.length > 1000) {
         valid.desc = false;
-        valid.descMessage = "Description over 1000 character limit";
+        valid.descMessage = "Description over 1000 character limit.";
     } else {
         valid.desc = true;
         valid.descMessage = null;

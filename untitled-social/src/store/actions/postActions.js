@@ -70,7 +70,7 @@ const createPostSnap = (uid, postId) => {
  * Updates feed for user at given id
  * @param {string} uid - User's user id 
  */
-export const updateFeed = (uid) => {
+export const updateFeed = () => {
     return(dispatch, getStore, {getFirestore}) => {
         const db = getFirestore();
         // get postSnap collection
@@ -132,5 +132,34 @@ const getPost = (path) => {
             });
         });
 
+    }
+}
+
+/**
+ * Update posts of currently logged in user
+ */
+export const updateUserFeed = () => {
+    return(dispatch, getStore, {getFirestore}) => {
+        const db = getFirestore();
+        const uid = getStore().firebase.auth.uid;
+        // Ensure user is logged in
+        if(uid) {
+            var userFeed = [];
+            // get posts of user ordered by date
+            db.collection("users").doc(uid).collection("posts").orderBy("time").get()
+            .then(snapshot => {
+
+                // loop through docs and push to array
+                for(var i = 0; i < snapshot.docs.length; i++) {
+                    userFeed.push(snapshot.docs[i].data());
+                }
+
+                dispatch({type: 'USER_FEED_UPDATE', userFeed});
+            })
+            // catch errors assoc. with getting user's posts collection
+            .catch(err => dispatch({type: 'USER_FEED_UPDATE_ERR', err}));
+        } else {
+            dispatch({type: 'USER_FEED_UPDATE_ERR', err: {message: "User not logged in."}});
+        }
     }
 }

@@ -1,10 +1,13 @@
 import React, {Component} from 'react';
+import {Redirect} from 'react-router-dom';
 import {Container, Row, Col, Card} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import PostSummary from '../posts/PostSummary';
 
-import {updateFeed} from '../../store/actions/postActions';
+import {updateFeed, updateUserFeed} from '../../store/actions/postActions';
+
+import '../../styles/ColorScheme.css';
 
 /**
  * Contain's user's content feed
@@ -22,16 +25,38 @@ class Feed extends Component {
      * Update feed on component mount
      */
     componentDidMount = () => {
-        this.props.updateFeed(this.props.auth.uid);
+        if(this.props.userFeed) {
+            this.props.updateUserFeed();
+        } else {
+            this.props.updateFeed();
+        }
     }
 
     /**
-     * build feed for user from data in props
+     * build feed jsx for user from data in store
      */
     assembleFeed = () => {
 
-        var feed = this.props.posts.feed;
+        // Check that posts exist
+        if((!this.props.userFeed && !this.props.posts.feed)
+            || (this.props.userFeed && !this.props.posts.userFeed)) {
+            return null;
+        }
+
+        // determine if feed is for profile or feed page
+        var feed;
+        if(this.props.userFeed) {
+            feed = this.props.posts.userFeed;
+        } else {
+            feed = this.props.posts.feed;
+        }
         var feedLength = feed.length;
+        
+        // return null if empty
+        if(feedLength === 0) {
+            return null;
+        }
+
         var mapping = [];
 
         /**
@@ -52,7 +77,10 @@ class Feed extends Component {
     }
 
     render() {
-        var feed = this.props.posts.feed && this.props.posts.feed.length > 0 ? this.assembleFeed() : null;
+        var feed = this.assembleFeed();
+
+        // route guarding
+        if(!this.props.auth.uid) return <Redirect to="/" />
 
         return (
             <Container className="pt-4">
@@ -60,8 +88,8 @@ class Feed extends Component {
                     <Col>
                         {feed ? feed : (
                             <Row className="justify-content-center">
-                                <Col md={6}>
-                                    <Card>
+                                <Col md={8}>
+                                    <Card className="shadow-sm secondary">
                                         <Card.Body>
                                             <Card.Title>No Posts!</Card.Title>
                                             <Card.Text>Maybe another time?</Card.Text>
@@ -86,7 +114,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        updateFeed: (uid) => dispatch(updateFeed(uid))
+        updateFeed: () => dispatch(updateFeed()),
+        updateUserFeed: () => dispatch(updateUserFeed())
     }
 }
 

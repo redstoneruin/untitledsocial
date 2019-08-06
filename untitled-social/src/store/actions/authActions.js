@@ -151,6 +151,31 @@ export const updateProfile = (uid, profile) => {
 }
 
 /**
+ * Returns username of user at given uid
+ */
+export const getUsernameFromUid = (uid) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        // Return promise that resolves with username
+        return new Promise((resolve, reject) => {
+            const db = getFirestore();
+
+            // get user document at uid
+            db.collection("users").doc(uid).get()
+            // resolve with user's username
+            .then(user => {
+                return resolve(user.data().username);
+            })
+            // catch errors from getting user document
+            .catch(err => {
+                return reject(err)
+            });
+        })
+        
+        
+    }
+}
+
+/**
 * Clears current profile update error
 */
 export const clearProfileUpdateError = () => {

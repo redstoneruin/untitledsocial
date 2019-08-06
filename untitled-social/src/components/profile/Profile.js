@@ -7,6 +7,7 @@ import {getProfileByUsername} from '../../store/actions/authActions';
 
 import ProfileUpdateForm from './ProfileUpdateForm';
 import CreatePost from '../feed/CreatePost';
+import Feed from '../feed/Feed';
 
 /**
  * User profile component
@@ -136,8 +137,8 @@ class Profile extends Component {
         if(!this.props.loadedProfile) return loadingScreen;
         return (
             <Container className="pt-4">
-                <Row>
-                    <Col>
+                <Row className="justify-content-center">
+                    <Col md={10}>
                         <Card className="shadow secondary">
                             <Card.Body className="text-left">
                                 <Card.Title>{this.props.loadedProfile.username}</Card.Title>
@@ -153,6 +154,8 @@ class Profile extends Component {
                         {createPostForm}
                     </Col>
                 </Row>
+
+                <Feed userFeed={true} />
             </Container>
         )
     }

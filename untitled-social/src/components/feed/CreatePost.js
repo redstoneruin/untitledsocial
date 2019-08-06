@@ -106,7 +106,7 @@ class CreatePost extends Component {
 
     render() {
         return (
-            <Row className="mt-4">
+            <Row className="mt-4 justify-content-center">
                 <Col>
                     <Card className="shadow secondary">
                         <Card.Body className="text-left">

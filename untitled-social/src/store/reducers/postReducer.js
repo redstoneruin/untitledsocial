@@ -3,9 +3,11 @@
  */
 const initState = {
     feed: null,
+    userFeed: null,
     userPostError: null,
     postSnapError: null,
-    feedUpdateError: null
+    feedUpdateError: null,
+    userPostsError: null
 }
 
 /**
@@ -58,6 +60,19 @@ const postReducer = (state = initState, action) => {
                 ...state,
                 feed: null,
                 feedUpdateError: null
+            }
+
+        case 'USER_FEED_UPDATE':
+            return {
+                ...state,
+                userFeed: action.userFeed,
+                userFeedError: null
+            }
+
+        case 'USER_FEED_UPDATE_ERR':
+            return {
+                ...state,
+                userFeedError: action.err.message
             }
 
         default:
