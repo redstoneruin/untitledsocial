@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/feed/CreatePost.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/feed/CreatePost.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Form for creating new post for a user
+ */
+import React, {Component} from 'react';
+import {Row, Col, Card, Form, Button} from 'react-bootstrap';
+import {connect} from 'react-redux';
+
+import {validateTitle, validateDesc} from '../../shared/validation';
+import {createUserPost} from '../../store/actions/postActions';
+
+class CreatePost extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            submitted: false,
+            post: {
+                type: null,
+                title: null,
+                desc: null,
+                author: this.props.auth.uid,
+                time: null,
+                content: null,
+                topic: null
+            },
+            valid: {
+                title: false,
+                titleMessage: null,
+                desc: false,
+                descMessage: false
+            },
+            validated: false
+        }
+    }
+
+    /**
+     * Handle state changes on form update
+     */
+    handleChange = (e) => {
+        // Combine field into post, update state
+        var post = Object.assign(this.state.post, {[e.target.id]: e.target.value});
+        this.setState({
+            post
+        }, this.validateState());
+    }
+
+    /**
+     * Handle create post form submission
+     */
+    handleSubmit = (e) => {
+        e.preventDefault();
+        if(this.state.validated) {
+            var post = this.state.post;
+            //
+            // TODO: Dummy data, separate into function
+            //
+            post.time = new Date();
+            post.content = "";
+            post.type = "text";
+            post.topic = "";
+
+            // create new post
+            this.props.createUserPost(post);
+
+            //
+            // Reset form to original state
+            //
+            post = {
+                type: null,
+                title: null,
+                desc: null,
+                author: this.props.profile.username,
+                time: null,
+                content: null
+            }
+            this.setState({
+                post,
+                submitted: false
+            }, this.validateState());
+
+            // toggle form visible
+            this.props.toggleCreatePostForm();
+        } else {
+            this.setState({
+                submitted: true
+            })
+        }
+    }
+
+    /**
+     * Handle validation for items in state
+     */
+    validateState = () => {
+        var validTitle = validateTitle(this.state.post.title);
+        var validDesc = validateDesc(this.state.post.desc);
+
+        var valid = Object.assign(validTitle, validDesc);
+        var validated = valid.title &amp;&amp; valid.desc;
+
+        this.setState({
+            valid,
+            validated
+        })
+
+    }
+
+    render() {
+        return (
+            &lt;Row className="mt-4 justify-content-center">
+                &lt;Col>
+                    &lt;Card className="shadow secondary">
+                        &lt;Card.Body className="text-left">
+                            &lt;Card.Title className="text-center">Create Post&lt;/Card.Title>
+                            &lt;Form onSubmit={this.handleSubmit} noValidate validated={this.state.validated}>
+                                    &lt;Form.Group>
+                                        &lt;Form.Label>Title&lt;/Form.Label>
+                                        &lt;Form.Control
+                                            required
+                                            onChange={this.handleChange}
+                                            type="text"
+                                            id="title"
+                                            defaultValue={this.state.title}
+                                            isValid={this.state.valid.title}
+                                            isInvalid={this.state.submitted &amp;&amp; !this.state.valid.title}>
+                                        &lt;/Form.Control>
+                                        &lt;Form.Control.Feedback type="invalid">{this.state.valid.titleMessage}&lt;/Form.Control.Feedback>
+                                    &lt;/Form.Group>
+                                    &lt;Form.Group>
+                                        &lt;Form.Label>Description&lt;/Form.Label>
+                                        &lt;Form.Control
+                                            required
+                                            onChange={this.handleChange}
+                                            as="textarea"
+                                            rows="3"
+                                            id="desc"
+                                            defaultValue={this.state.desc}
+                                            isValid={this.state.valid.desc}
+                                            isInvalid={this.state.submitted &amp;&amp; !this.state.valid.desc}>
+                                        &lt;/Form.Control>
+                                        &lt;Form.Control.Feedback type="invalid">{this.state.valid.descMessage}&lt;/Form.Control.Feedback>
+                                    &lt;/Form.Group>
+                                &lt;/Form>
+                                &lt;div className="text-right">
+                                    &lt;Button variant="danger" className="mr-2" onClick={this.props.toggleCreatePostForm}>Cancel&lt;/Button>
+                                    &lt;Button className="primary-button" onClick={this.handleSubmit}>Post&lt;/Button>
+                                &lt;/div>
+                        &lt;/Card.Body>
+                    &lt;/Card>
+                &lt;/Col>
+            &lt;/Row>
+        )
+    }
+}
+
+const mapStateToProps = (state) => {
+    return {
+        auth: state.firebase.auth,
+        profile: state.firebase.profile
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        createUserPost: (post) => dispatch(createUserPost(post))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(CreatePost);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Feed.html">Feed</a></li><li><a href="Home.html">Home</a></li><li><a href="PostSummary.html">PostSummary</a></li><li><a href="Profile.html">Profile</a></li><li><a href="ProfileUpdateForm.html">ProfileUpdateForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#authReducer">authReducer</a></li><li><a href="global.html#clearAuthError">clearAuthError</a></li><li><a href="global.html#clearProfileUpdateError">clearProfileUpdateError</a></li><li><a href="global.html#createPostSnap">createPostSnap</a></li><li><a href="global.html#createUserPost">createUserPost</a></li><li><a href="global.html#getPost">getPost</a></li><li><a href="global.html#getProfileByUsername">getProfileByUsername</a></li><li><a href="global.html#getUsernameFromUid">getUsernameFromUid</a></li><li><a href="global.html#initState">initState</a></li><li><a href="global.html#postReducer">postReducer</a></li><li><a href="global.html#rootReducer">rootReducer</a></li><li><a href="global.html#SignedInLinks">SignedInLinks</a></li><li><a href="global.html#SignedOutLinks">SignedOutLinks</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#signOut">signOut</a></li><li><a href="global.html#signUp">signUp</a></li><li><a href="global.html#SocialNavbar">SocialNavbar</a></li><li><a href="global.html#updateFeed">updateFeed</a></li><li><a href="global.html#updateProfile">updateProfile</a></li><li><a href="global.html#updateUserFeed">updateUserFeed</a></li><li><a href="global.html#validateBio">validateBio</a></li><li><a href="global.html#validateDesc">validateDesc</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validatePassword">validatePassword</a></li><li><a href="global.html#validateTitle">validateTitle</a></li><li><a href="global.html#validateUsername">validateUsername</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Aug 06 2019 16:50:32 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

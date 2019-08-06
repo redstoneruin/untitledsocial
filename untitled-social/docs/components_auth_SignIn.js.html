@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/auth/SignIn.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/auth/SignIn.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Component containing forms for signing in to an Untitled account
+ */
+import React, {Component} from 'react';
+import {Container, Row, Col, Card, Form, Button, Alert} from 'react-bootstrap';
+import {Redirect} from 'react-router-dom';
+import {connect} from 'react-redux';
+
+import {signIn, clearAuthError} from '../../store/actions/authActions';
+import {validateEmail, validatePassword} from '../../shared/validation';
+
+class SignIn extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            email: "",
+            password: "",
+            emailPattern: new RegExp(/^(([^&lt;>()\]\\.,;:\s@"]+(\.[^&lt;>()\]\\.,;:\s@"]+)*)|(".+"))@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/),
+            validated: false,
+            submitted: false,
+            valid: {
+                email: false,
+                password: false,
+                emailMessage: null,
+                passwordMessage: null
+            }
+        }
+    }
+
+    /**
+     * Clear authentication errors on component mount
+     */
+    componentDidMount = () => {
+        this.props.clearAuthError();
+    }
+
+    /**
+     * Validates email and password in state as formatted correctly
+     */
+    validateState = () => {
+        var validEmail = validateEmail(this.state.email);
+        var validPassword = validatePassword(this.state.password);
+
+        var valid = Object.assign(validEmail, validPassword);
+
+        var validated = valid.email &amp;&amp; valid.password;
+
+        this.setState({
+            valid,
+            validated
+        })
+    }
+
+    /**
+     * Handle submitting of the sign in form
+     */
+    handleSubmit = (e) => {
+        e.preventDefault();
+        // validate state of components
+        this.validateState();
+        this.setState({
+            submitted: true
+        }, () => {
+            // If form validated, attempt to sign in user
+            if(this.state.validated) {
+                this.props.signIn({email: this.state.email, password: this.state.password});
+            }
+        })
+    }
+
+    /**
+     * Update state when changes made to form elements
+     */
+    handleChange = (e) => {
+        this.props.clearAuthError();
+        this.setState({
+            [e.target.id]: e.target.value
+        }, () => {
+            // Validate state after changes
+            this.validateState();
+        });
+    }
+
+    render() {
+        /**
+         * Determine if error message is to be shown
+         */
+        var errorMessage = this.props.authError ? (
+            &lt;Alert variant='danger mt-2'>{this.props.authError}&lt;/Alert>
+        ) : null
+
+        if(!this.props.auth.isEmpty) return &lt;Redirect to='/feed' />
+        return (
+            &lt;Container className="pt-4">
+                &lt;Row className="justify-content-center">
+                    &lt;Col xs={12} sm={10} lg={8} xl={6}>
+                        &lt;Card className="shadow-sm">
+                            &lt;Card.Header as="h5">Login&lt;/Card.Header>
+                            &lt;Card.Body className="text-left" style={{borderRadius: "3px"}}>
+                                &lt;Form onSubmit={this.handleSubmit} noValidate>
+                                    &lt;Form.Group>
+                                        &lt;Form.Label>Email address&lt;/Form.Label>
+                                        &lt;Form.Control
+                                            required
+                                            onChange={this.handleChange}
+                                            type="email"
+                                            id="email"
+                                            isValid={this.state.valid.email}
+                                            isInvalid={this.state.submitted &amp;&amp; !this.state.valid.email}>
+                                        &lt;/Form.Control>
+                                        &lt;Form.Control.Feedback type="invalid">{this.state.valid.emailMessage}&lt;/Form.Control.Feedback>
+                                    &lt;/Form.Group>
+
+                                    &lt;Form.Group>
+                                        &lt;Form.Label>Password&lt;/Form.Label>
+                                        &lt;Form.Control
+                                            required
+                                            onChange={this.handleChange}
+                                            type="password"
+                                            id="password"
+                                            isValid={this.state.valid.password}
+                                            isInvalid={this.state.submitted &amp;&amp; !this.state.valid.password}>
+                                        &lt;/Form.Control>
+                                        &lt;Form.Control.Feedback type="invalid">{this.state.valid.passwordMessage}&lt;/Form.Control.Feedback>
+                                    &lt;/Form.Group>
+
+                                    &lt;Button onClick={this.handleSubmit} type="submit" className="primary-button">Login&lt;/Button>
+                                &lt;/Form>
+                            &lt;/Card.Body>
+                        &lt;/Card>
+                        {errorMessage}
+                    &lt;/Col>
+                &lt;/Row>
+            &lt;/Container>
+        );
+    }
+}
+
+const mapStateToProps = (state) => {
+    return {
+        auth: state.firebase.auth,
+        authError: state.auth.authError
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        signIn: (user) => dispatch(signIn(user)),
+        clearAuthError: (user) => dispatch(clearAuthError())
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignIn);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Feed.html">Feed</a></li><li><a href="Home.html">Home</a></li><li><a href="PostSummary.html">PostSummary</a></li><li><a href="Profile.html">Profile</a></li><li><a href="ProfileUpdateForm.html">ProfileUpdateForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#authReducer">authReducer</a></li><li><a href="global.html#clearAuthError">clearAuthError</a></li><li><a href="global.html#clearProfileUpdateError">clearProfileUpdateError</a></li><li><a href="global.html#createPostSnap">createPostSnap</a></li><li><a href="global.html#createUserPost">createUserPost</a></li><li><a href="global.html#getPost">getPost</a></li><li><a href="global.html#getProfileByUsername">getProfileByUsername</a></li><li><a href="global.html#getUsernameFromUid">getUsernameFromUid</a></li><li><a href="global.html#initState">initState</a></li><li><a href="global.html#postReducer">postReducer</a></li><li><a href="global.html#rootReducer">rootReducer</a></li><li><a href="global.html#SignedInLinks">SignedInLinks</a></li><li><a href="global.html#SignedOutLinks">SignedOutLinks</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#signOut">signOut</a></li><li><a href="global.html#signUp">signUp</a></li><li><a href="global.html#SocialNavbar">SocialNavbar</a></li><li><a href="global.html#updateFeed">updateFeed</a></li><li><a href="global.html#updateProfile">updateProfile</a></li><li><a href="global.html#updateUserFeed">updateUserFeed</a></li><li><a href="global.html#validateBio">validateBio</a></li><li><a href="global.html#validateDesc">validateDesc</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validatePassword">validatePassword</a></li><li><a href="global.html#validateTitle">validateTitle</a></li><li><a href="global.html#validateUsername">validateUsername</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Aug 06 2019 16:50:32 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

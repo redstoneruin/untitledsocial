@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/profile/Profile.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/profile/Profile.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, {Component} from 'react';
+import {Redirect} from 'react-router-dom';
+import {Container, Card, Spinner, Row, Col, Button} from 'react-bootstrap';
+import {connect} from 'react-redux';
+
+import {getProfileByUsername} from '../../store/actions/authActions';
+import {updateUserFeed} from '../../store/actions/postActions';
+
+import ProfileUpdateForm from './ProfileUpdateForm';
+import CreatePost from '../feed/CreatePost';
+import Feed from '../feed/Feed';
+
+/**
+ * User profile component
+ */
+class Profile extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            route: props.match.params.id,
+            updateFormVisible: false,
+            createPostFormVisible: false
+        }
+    }
+
+    /**
+     * Get profile data on component mount
+     */
+    componentDidMount = () => {
+        this.updateUserProfileInfo();
+    }
+
+    /**
+     * Update profile information
+     */
+    updateUserProfileInfo = () => {
+        this.props.getProfileByUsername(this.props.match.params.id);
+    }
+
+    /**
+     * Update profile if route changes
+     */
+    componentDidUpdate = () => {
+        if(this.props.match.params.id !== this.state.route) {
+            this.setState({
+                route: this.props.match.params.id,
+                updateFormVisible: false
+            }, () => {
+                // after setting state, update profile data
+                this.props.getProfileByUsername(this.state.route);
+            })
+        }
+    }
+
+    /**
+     * Toggle update form visibility
+     */
+    toggleProfileUpdate = () => {
+        this.setState({
+            updateFormVisible: !this.state.updateFormVisible
+        })
+    }
+    /**
+     * Toggle create post form visibility
+     */
+    toggleCreatePostForm = () => {
+        // update feed if form to be closed
+        if(this.state.createPostFormVisible) {
+            this.props.updateUserFeed();
+        }
+        this.setState({
+            createPostFormVisible: !this.state.createPostFormVisible
+        })
+    }
+
+    
+    render() {
+
+        /**
+         * Loading screen visible before profile information loaded
+         */
+        var loadingScreen = (
+            &lt;Container className="pt-4">
+                &lt;Row className="justify-content-center">
+                    &lt;Col md={6}>
+                        &lt;Card>
+                            &lt;Card.Body>
+                                &lt;Card.Title>Profile is loading&lt;/Card.Title>
+                                &lt;Spinner className="mt-3" animation="border">&lt;/Spinner>
+                            &lt;/Card.Body>
+                        &lt;/Card>
+                    &lt;/Col>
+                &lt;/Row>
+            &lt;/Container>
+        )
+
+
+        // Profile update form to display to logged in users
+        var profileUpdateForm = this.state.updateFormVisible ? (
+            &lt;ProfileUpdateForm 
+            toggleProfileUpdate={this.toggleProfileUpdate} 
+            updateUserProfileInfo={this.updateUserProfileInfo}
+            route={this.state.route} />
+        ) : (
+            // only display update profile button if on current user's profile
+            this.props.loadedProfile &amp;&amp; this.props.loadedProfile.username === this.props.profile.username ? (
+                &lt;Button variant="info" className="mr-2 shadow-sm" onClick={this.toggleProfileUpdate}>Update Profile&lt;/Button>
+            ) : null
+        )
+
+        // Determine whether to show create post form or button to expand
+        var createPostForm =  this.state.createPostFormVisible ? (
+            &lt;CreatePost toggleCreatePostForm={this.toggleCreatePostForm} />
+        ) :  null
+
+        var createPostButton = this.props.loadedProfile 
+        &amp;&amp; !this.state.createPostFormVisible
+        &amp;&amp; this.props.loadedProfile.username === this.props.profile.username ? (
+            &lt;Button className="primary-button shadow-sm mr-2" onClick={this.toggleCreatePostForm}>Create Post&lt;/Button>
+        ) : null
+
+        if(!this.props.auth.uid) return &lt;Redirect to='/login' />
+
+        // Display if load error present
+        if(this.props.userLoadError) return (
+            &lt;Container className="pt-4">
+                &lt;Row className="justify-content-center">
+                    &lt;Col md={6}>
+                        &lt;Card>
+                            &lt;Card.Body>
+                                &lt;Card.Title>Oh no! We ran into an error.&lt;/Card.Title>
+                                &lt;Card.Text>{this.props.userLoadError}&lt;/Card.Text>
+                            &lt;/Card.Body>
+                        &lt;/Card>
+                    &lt;/Col>
+                &lt;/Row>
+            &lt;/Container>
+        );
+
+        // return loading screen if no profile data yet
+        if(!this.props.loadedProfile) return loadingScreen;
+        return (
+            &lt;Container className="pt-4">
+                &lt;Row className="justify-content-center">
+                    &lt;Col md={10}>
+                        &lt;Card className="shadow secondary">
+                            &lt;Card.Body className="text-left">
+                                &lt;Card.Title>{this.props.loadedProfile.username}&lt;/Card.Title>
+                                &lt;Card.Text>{this.props.loadedProfile.bio ? this.props.loadedProfile.bio : (
+                                    null
+                                )}&lt;/Card.Text>
+                                &lt;div className="text-right">
+                                    {profileUpdateForm}
+                                    {createPostButton}
+                                &lt;/div>
+                            &lt;/Card.Body>
+                        &lt;/Card>
+                        {createPostForm}
+                    &lt;/Col>
+                &lt;/Row>
+
+                &lt;Feed userFeed={true} />
+            &lt;/Container>
+        )
+    }
+}
+
+const mapStateToProps = (state) => {
+    return {
+        auth: state.firebase.auth,
+        profile: state.firebase.profile,
+        loadedProfile: state.auth.loadedProfile,
+        userLoadError: state.auth.userLoadError
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        getProfileByUsername: (username) => dispatch(getProfileByUsername(username)),
+        updateUserFeed: () => dispatch(updateUserFeed())
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Feed.html">Feed</a></li><li><a href="Home.html">Home</a></li><li><a href="PostSummary.html">PostSummary</a></li><li><a href="Profile.html">Profile</a></li><li><a href="ProfileUpdateForm.html">ProfileUpdateForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#authReducer">authReducer</a></li><li><a href="global.html#clearAuthError">clearAuthError</a></li><li><a href="global.html#clearProfileUpdateError">clearProfileUpdateError</a></li><li><a href="global.html#createPostSnap">createPostSnap</a></li><li><a href="global.html#createUserPost">createUserPost</a></li><li><a href="global.html#getPost">getPost</a></li><li><a href="global.html#getProfileByUsername">getProfileByUsername</a></li><li><a href="global.html#getUsernameFromUid">getUsernameFromUid</a></li><li><a href="global.html#initState">initState</a></li><li><a href="global.html#postReducer">postReducer</a></li><li><a href="global.html#rootReducer">rootReducer</a></li><li><a href="global.html#SignedInLinks">SignedInLinks</a></li><li><a href="global.html#SignedOutLinks">SignedOutLinks</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#signOut">signOut</a></li><li><a href="global.html#signUp">signUp</a></li><li><a href="global.html#SocialNavbar">SocialNavbar</a></li><li><a href="global.html#updateFeed">updateFeed</a></li><li><a href="global.html#updateProfile">updateProfile</a></li><li><a href="global.html#updateUserFeed">updateUserFeed</a></li><li><a href="global.html#validateBio">validateBio</a></li><li><a href="global.html#validateDesc">validateDesc</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validatePassword">validatePassword</a></li><li><a href="global.html#validateTitle">validateTitle</a></li><li><a href="global.html#validateUsername">validateUsername</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Aug 06 2019 16:50:32 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

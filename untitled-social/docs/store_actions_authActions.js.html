@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: store/actions/authActions.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: store/actions/authActions.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Sign up new user with email and password
+ * @param {*} newUser - Object containing username, email and password string fields
+ */
+export const signUp = (newUser) => {
+    return(dispatch, getStore, {getFirebase, getFirestore}) => {
+        const firebase = getFirebase();
+        const db = getFirestore();
+
+        db.collection("users").where("username", "==", newUser.username).get()
+        .then(snapshot => {
+            // If user found, cannot create new user
+            if(!snapshot.empty) {
+                dispatch({type: 'SIGNUP_ERR', err: {message: "Username already exists"}});
+            } else {
+                // Create new user with authentication
+                firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
+                // Attach displayname to firebase user document
+                .then(response => {
+                    console.log("Auth response:")
+                    console.log(response);
+                    db.collection('users').doc(response.user.uid).set({
+                        username: newUser.username,
+                        joinTime: new Date()
+                    })
+                    // signup successful
+                    .then(dispatch({type: 'SIGNUP_SUCCESS'}))
+                    // catch errors associated with posting data to firestore
+                    .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
+                })
+                // catch errors associated with authenticating user
+                .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
+            }
+        })
+        // Catch errors associated with finding user document
+        .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
+    }
+}
+
+/**
+ * Sign in user with email and password
+ * @param {*} user - Object containing email and password
+ */
+export const signIn = (user) => {
+    return(dispatch, getStore, {getFirebase, getFirestore}) => {
+        const firebase = getFirebase();
+        const db = getFirestore();
+        // sign in user with email and password given
+        firebase.auth().signInWithEmailAndPassword(user.email, user.password)
+        // dispatch success
+        .then((response) => {
+            db.collection("users").doc(response.user.uid).get().then(user => {
+                if(user) {
+                    dispatch({type: 'LOGIN_SUCCESS'});
+                } else {
+                    dispatch({type: 'LOGIN_ERR', err: {message: 'User data does not exist'}})
+                }
+            })
+        })
+        // catch errors associated with signing in
+        .catch(err => dispatch({type: 'LOGIN_ERR', err}))
+    }
+}
+
+/**
+ * Sign out currently logged in user
+ */
+export const signOut = () => {
+    return(dispatch, getStore, {getFirebase}) => {
+        const firebase = getFirebase();
+
+        // sign out with firebase
+        firebase.auth().signOut()
+        // dispatch successful signout
+        .then(dispatch({type: 'SIGNOUT_SUCCESS'}))
+        // catch errors associated with signing out
+        .catch(err => dispatch({type: 'SIGNOUT_ERR', err}));
+    }
+}
+
+/**
+ * clear authentication errors
+ */
+export const clearAuthError = () => {
+    return(dispatch, getStore) => {
+        dispatch({type: 'CLEAR_AUTH_ERR'});
+    }
+}
+
+/**
+ * Load user data into auth reducer by username,
+ * without access to uid
+ * @param {string} username - User's username
+ */
+export const getProfileByUsername = (username) => {
+    return(dispatch, getStore, {getFirestore}) => {
+
+        const db = getFirestore();
+
+        db.collection("users").where("username", "==", username).get()
+        // Get profile data after async query
+        .then(querySnapshot => {
+            if(querySnapshot.empty) {
+                dispatch({type: 'USER_LOAD_ERR', err: {message: 'User not found'}});
+            } else {
+                // Dispatch to load profile into store
+                querySnapshot.forEach(doc => {
+                    dispatch({type: 'USER_LOADED', user: doc.data()});
+                })
+            }
+        })
+        // Catch errors associated with firestore query
+        .catch(err => dispatch({type: 'USER_LOAD_ERR', err}));
+    }
+}
+
+/**
+ * Update user's profile data with new object
+ * @param {string} uid - User's user id
+ * @param {Object} profile - Profile object to replace for user (must be logged in)
+ */
+export const updateProfile = (uid, profile) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        // return promise to perform async functions
+        return new Promise((resolve, reject) => {
+            const db = getFirestore();
+            var profileRef = db.collection("users").doc(uid);
+
+            // Check if username already taken
+            db.collection("users").where("username", "==", profile.username).get()
+                .then(snapshot => {
+                    // if username DNE or this user owns this username, allow update
+                    if (snapshot.empty || snapshot.docs[0].data().username === getStore().firebase.profile.username) {
+                        // Update firestore at user reference to new object
+                        profileRef.update(profile)
+                            // Dispatch success after async update
+                            .then(dispatch({ type: 'PROFILE_UPDATE_SUCCESS' }))
+                            // resolve function
+                            .then(() => {return resolve()})
+                            // catch errors associated with updating
+                            .catch(err => dispatch({ type: 'PROFILE_UPDATE_ERR', err }));
+                    } else {
+                        var err = {message: "Username already taken."}
+                        dispatch({ type: 'PROFILE_UPDATE_ERR', err });
+                    }
+                })
+                // catch errors associated with querying
+                .catch(err => dispatch({ type: 'PROFILE_UPDATE_ERR', err }));
+        })
+    }
+}
+
+/**
+ * Returns username of user at given uid
+ */
+export const getUsernameFromUid = (uid) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        // Return promise that resolves with username
+        return new Promise((resolve, reject) => {
+            const db = getFirestore();
+
+            // get user document at uid
+            db.collection("users").doc(uid).get()
+            // resolve with user's username
+            .then(user => {
+                if(!user.empty) {
+                    return resolve(user.data().username);
+                } else {
+                    return resolve("unknown user");
+                }
+            })
+            // catch errors from getting user document
+            .catch(err => {
+                return reject(err)
+            });
+        })
+        
+        
+    }
+}
+
+/**
+* Clears current profile update error
+*/
+export const clearProfileUpdateError = () => {
+    return (dispatch) => {
+        dispatch({ type: 'PROFILE_UPDATE_SUCCESS' });
+    }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Feed.html">Feed</a></li><li><a href="Home.html">Home</a></li><li><a href="PostSummary.html">PostSummary</a></li><li><a href="Profile.html">Profile</a></li><li><a href="ProfileUpdateForm.html">ProfileUpdateForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#authReducer">authReducer</a></li><li><a href="global.html#clearAuthError">clearAuthError</a></li><li><a href="global.html#clearProfileUpdateError">clearProfileUpdateError</a></li><li><a href="global.html#createPostSnap">createPostSnap</a></li><li><a href="global.html#createUserPost">createUserPost</a></li><li><a href="global.html#getPost">getPost</a></li><li><a href="global.html#getProfileByUsername">getProfileByUsername</a></li><li><a href="global.html#getUsernameFromUid">getUsernameFromUid</a></li><li><a href="global.html#initState">initState</a></li><li><a href="global.html#postReducer">postReducer</a></li><li><a href="global.html#rootReducer">rootReducer</a></li><li><a href="global.html#SignedInLinks">SignedInLinks</a></li><li><a href="global.html#SignedOutLinks">SignedOutLinks</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#signOut">signOut</a></li><li><a href="global.html#signUp">signUp</a></li><li><a href="global.html#SocialNavbar">SocialNavbar</a></li><li><a href="global.html#updateFeed">updateFeed</a></li><li><a href="global.html#updateProfile">updateProfile</a></li><li><a href="global.html#updateUserFeed">updateUserFeed</a></li><li><a href="global.html#validateBio">validateBio</a></li><li><a href="global.html#validateDesc">validateDesc</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validatePassword">validatePassword</a></li><li><a href="global.html#validateTitle">validateTitle</a></li><li><a href="global.html#validateUsername">validateUsername</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Aug 06 2019 16:50:32 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

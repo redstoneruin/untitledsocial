@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/feed/Feed.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/feed/Feed.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, {Component} from 'react';
+import {Redirect} from 'react-router-dom';
+import {Container, Row, Col, Card} from 'react-bootstrap';
+import {connect} from 'react-redux';
+
+import PostSummary from '../posts/PostSummary';
+
+import {updateFeed, updateUserFeed} from '../../store/actions/postActions';
+
+import '../../styles/ColorScheme.css';
+
+/**
+ * Contain's user's content feed
+ */
+class Feed extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            feed: null
+        }
+    }
+
+    /**
+     * Update feed on component mount
+     */
+    componentDidMount = () => {
+        if(this.props.auth.uid) {
+            if(this.props.userFeed) {
+                this.props.updateUserFeed();
+            } else {
+                this.props.updateFeed();
+            }
+        }
+    }
+
+    /**
+     * build feed jsx for user from data in store
+     */
+    assembleFeed = () => {
+
+        // Check that posts exist
+        if((!this.props.userFeed &amp;&amp; !this.props.posts.feed)
+            || (this.props.userFeed &amp;&amp; !this.props.posts.userFeed)) {
+            return null;
+        }
+
+        // determine if feed is for profile or feed page
+        var feed;
+        if(this.props.userFeed) {
+            feed = this.props.posts.userFeed;
+        } else {
+            feed = this.props.posts.feed;
+        }
+        var feedLength = feed.length;
+        
+        // return null if empty
+        if(feedLength === 0) {
+            return null;
+        }
+
+        var mapping = [];
+
+        /**
+         * Map post summaries to card decks, to make two columns
+         */
+        for(var i = 0; i &lt; feedLength; i++) {
+            // separate into two cols by even/odd index
+            mapping.push(
+                &lt;Row key={i} className="justify-content-center">
+                    &lt;Col md={8}>
+                        &lt;PostSummary post={feed[i]} />
+                    &lt;/Col>
+                &lt;/Row>
+            )
+        }
+
+        return mapping;
+    }
+
+    render() {
+        var feed = this.assembleFeed();
+
+        // route guarding
+        if(!this.props.auth.uid) return &lt;Redirect to="/" />
+
+        return (
+            &lt;Container className="pt-4">
+                &lt;Row>
+                    &lt;Col>
+                        {feed ? feed : (
+                            &lt;Row className="justify-content-center">
+                                &lt;Col md={8}>
+                                    &lt;Card className="shadow-sm secondary">
+                                        &lt;Card.Body>
+                                            &lt;Card.Title>No Posts!&lt;/Card.Title>
+                                            &lt;Card.Text>Maybe another time?&lt;/Card.Text>
+                                        &lt;/Card.Body>
+                                    &lt;/Card>
+                                &lt;/Col>
+                            &lt;/Row>
+                        )}
+                    &lt;/Col>
+                &lt;/Row>
+            &lt;/Container>
+        )
+    }
+}
+
+const mapStateToProps = (state) => {
+    return {
+        auth: state.firebase.auth,
+        posts: state.posts
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        updateFeed: () => dispatch(updateFeed()),
+        updateUserFeed: () => dispatch(updateUserFeed())
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Feed);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Feed.html">Feed</a></li><li><a href="Home.html">Home</a></li><li><a href="PostSummary.html">PostSummary</a></li><li><a href="Profile.html">Profile</a></li><li><a href="ProfileUpdateForm.html">ProfileUpdateForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#authReducer">authReducer</a></li><li><a href="global.html#clearAuthError">clearAuthError</a></li><li><a href="global.html#clearProfileUpdateError">clearProfileUpdateError</a></li><li><a href="global.html#createPostSnap">createPostSnap</a></li><li><a href="global.html#createUserPost">createUserPost</a></li><li><a href="global.html#getPost">getPost</a></li><li><a href="global.html#getProfileByUsername">getProfileByUsername</a></li><li><a href="global.html#getUsernameFromUid">getUsernameFromUid</a></li><li><a href="global.html#initState">initState</a></li><li><a href="global.html#postReducer">postReducer</a></li><li><a href="global.html#rootReducer">rootReducer</a></li><li><a href="global.html#SignedInLinks">SignedInLinks</a></li><li><a href="global.html#SignedOutLinks">SignedOutLinks</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#signOut">signOut</a></li><li><a href="global.html#signUp">signUp</a></li><li><a href="global.html#SocialNavbar">SocialNavbar</a></li><li><a href="global.html#updateFeed">updateFeed</a></li><li><a href="global.html#updateProfile">updateProfile</a></li><li><a href="global.html#updateUserFeed">updateUserFeed</a></li><li><a href="global.html#validateBio">validateBio</a></li><li><a href="global.html#validateDesc">validateDesc</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validatePassword">validatePassword</a></li><li><a href="global.html#validateTitle">validateTitle</a></li><li><a href="global.html#validateUsername">validateUsername</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Aug 06 2019 16:50:32 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: shared/validation.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: shared/validation.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Validate username, returns valid object with username and usernameMessage properties
+ * @param {string} username - Username to validate
+ */
+export const validateUsername = (username) => {
+    // valid object to return
+    var valid = {};
+
+    if(!username) {
+        valid.username = false;
+        valid.usernameMessage = "Please enter a username.";
+    } else if(username.length &lt; 5) {
+        valid.username = false;
+        valid.usernameMessage = "Username too short.";
+    } else if(username.length > 30) {
+        valid.username = false;
+        valid.usernameMessage = "Username too long.";
+    } else {
+        valid.username = true;
+        valid.usernameMessage = null;
+    }
+
+    return valid;
+}
+
+/**
+ * Validate bio, returns valid object with bio and bioMessage properties
+ * @param {string} bio - Bio string to validate
+ */
+export const validateBio = (bio) => {
+    // valid object to return
+    var valid = {};
+
+    if(!bio) {
+        valid.bio = true;
+        valid.bioMessage = null;
+    } else if(bio.length > 1000) {
+        valid.bio = false;
+        valid.bioMessage = "Bio too long.";
+    } else {
+        valid.bio = true;
+        valid.bioMessage = null;
+    }
+
+    return valid;
+}
+
+/**
+ * Validate email format
+ * @param {string} email - email string to validate
+ */
+export const validateEmail = (email) => {
+    // Email regex pattern
+    const emailPattern = new RegExp(/^(([^&lt;>()\]\\.,;:\s@"]+(\.[^&lt;>()\]\\.,;:\s@"]+)*)|(".+"))@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+    var valid = {};
+    
+    if(!email) {
+        valid.email = false;
+        valid.emailMessage = "Please enter an email address.";
+    } else if(emailPattern.test(email)) {
+        valid.email = true;
+        valid.emailMessage = null;
+    } else {
+        valid.email = false;
+        valid.emailMessage = "Please enter a valid email address."
+    }
+
+    return valid;
+}
+
+/**
+ * Validate password format
+ * @param {string} password - password string to validate
+ */
+export const validatePassword = (password) => {
+    var valid = {};
+
+    if(!password) {
+        valid.password = false;
+        valid.passwordMessage = "Please enter a password."
+    } else if(password.length &lt; 8) {
+        valid.password = false;
+        valid.passwordMessage = "Password must be 8 characters or more."
+    } else {
+        valid.password = true;
+        valid.passwordMessage = null;
+    }
+
+    return valid;
+}
+
+/**
+ * Validate title string
+ * @param {string} title - Title string to validate
+ */
+export const validateTitle = (title) => {
+    var valid = {};
+
+    if(!title) {
+        valid.title = false;
+        valid.titleMessage = "Please enter a title.";
+    } else {
+        valid.title = true;
+        valid.titleMessage = null;
+    }
+    return valid;
+}
+
+/**
+ * Validate description string
+ * @param {string} desc - Description string to validate
+ */
+export const validateDesc = (desc) => {
+    var valid = {};
+
+    if(!desc) {
+        valid.desc = false;
+        valid.descMessage = "Please enter a description.";
+    } else if(desc.length > 5000) {
+        valid.desc = false;
+        valid.descMessage = "Description over 1000 character limit.";
+    } else {
+        valid.desc = true;
+        valid.descMessage = null;
+    }
+    return valid;
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Feed.html">Feed</a></li><li><a href="Home.html">Home</a></li><li><a href="PostSummary.html">PostSummary</a></li><li><a href="Profile.html">Profile</a></li><li><a href="ProfileUpdateForm.html">ProfileUpdateForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#authReducer">authReducer</a></li><li><a href="global.html#clearAuthError">clearAuthError</a></li><li><a href="global.html#clearProfileUpdateError">clearProfileUpdateError</a></li><li><a href="global.html#createPostSnap">createPostSnap</a></li><li><a href="global.html#createUserPost">createUserPost</a></li><li><a href="global.html#getPost">getPost</a></li><li><a href="global.html#getProfileByUsername">getProfileByUsername</a></li><li><a href="global.html#getUsernameFromUid">getUsernameFromUid</a></li><li><a href="global.html#initState">initState</a></li><li><a href="global.html#postReducer">postReducer</a></li><li><a href="global.html#rootReducer">rootReducer</a></li><li><a href="global.html#SignedInLinks">SignedInLinks</a></li><li><a href="global.html#SignedOutLinks">SignedOutLinks</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#signOut">signOut</a></li><li><a href="global.html#signUp">signUp</a></li><li><a href="global.html#SocialNavbar">SocialNavbar</a></li><li><a href="global.html#updateFeed">updateFeed</a></li><li><a href="global.html#updateProfile">updateProfile</a></li><li><a href="global.html#updateUserFeed">updateUserFeed</a></li><li><a href="global.html#validateBio">validateBio</a></li><li><a href="global.html#validateDesc">validateDesc</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validatePassword">validatePassword</a></li><li><a href="global.html#validateTitle">validateTitle</a></li><li><a href="global.html#validateUsername">validateUsername</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Aug 06 2019 16:50:32 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

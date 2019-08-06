@@ -21,9 +21,18 @@ class PostSummary extends Component {
     }
 
     /**
-     * Get username of poster on component mount, and date string
+     * Update state info on component mount if user logged in
      */
     componentDidMount = () => {
+        if(this.props.auth.uid) {
+            this.getStateData();
+        }
+    }
+
+    /**
+     * Get username of poster and date string
+     */
+    getStateData = () => {
         // get username
         this.props.getUsernameFromUid(this.props.post.author)
         .then(username => this.setState({

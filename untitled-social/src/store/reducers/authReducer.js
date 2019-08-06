@@ -10,8 +10,8 @@ const initState = {
 
 /**
  * Redux reducer for authentication and profile functions
- * @param {Object} - Updated state of the auth store
- * @param {Object} - Action object with type
+ * @param {Object} state - Updated state of the auth store
+ * @param {Object} action - Action object with type
  */
 const authReducer = (state = initState, action) => {
     var authError;

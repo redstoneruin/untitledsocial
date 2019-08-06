@@ -25,10 +25,12 @@ class Feed extends Component {
      * Update feed on component mount
      */
     componentDidMount = () => {
-        if(this.props.userFeed) {
-            this.props.updateUserFeed();
-        } else {
-            this.props.updateFeed();
+        if(this.props.auth.uid) {
+            if(this.props.userFeed) {
+                this.props.updateUserFeed();
+            } else {
+                this.props.updateFeed();
+            }
         }
     }
 

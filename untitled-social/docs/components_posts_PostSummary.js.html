@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/posts/PostSummary.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/posts/PostSummary.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, {Component} from 'react';
+import {Redirect} from 'react-router-dom';
+import {Card} from 'react-bootstrap';
+import {connect} from 'react-redux';
+
+import {getUsernameFromUid} from '../../store/actions/authActions';
+
+import '../../styles/ColorScheme.css'
+
+/**
+ * Reduced form of a post
+ */
+class PostSummary extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            redirect: false,
+            username: null,
+            dateString: null
+        }
+    }
+
+    /**
+     * Update state info on component mount if user logged in
+     */
+    componentDidMount = () => {
+        if(this.props.auth.uid) {
+            this.getStateData();
+        }
+    }
+
+    /**
+     * Get username of poster and date string
+     */
+    getStateData = () => {
+        // get username
+        this.props.getUsernameFromUid(this.props.post.author)
+        .then(username => this.setState({
+            username
+        }))
+        // catch rejections
+        .catch(err => {
+            console.log(err);
+        });
+
+        // compile date string
+        var date = new Date(this.props.post.time.seconds * 1000);
+        var dateString = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+        // set date in state
+        this.setState({
+            dateString
+        })
+    }
+
+    /**
+     * Handle click and redirect to 
+     */
+    handleClick = () => {
+        this.setState({redirect: true});
+    }
+
+    render() {
+        // redirect to this post
+        if(this.state.redirect) return &lt;Redirect to={"/post/" + this.props.postId} />
+
+        return(
+            &lt;Card style={{cursor: "pointer"}} onClick={this.handleClick} className="shadow-sm secondary mb-4 selection-hover-fade text-left">
+                &lt;Card.Body className="text-left">
+                    &lt;Card.Title>{this.props.post.title}&lt;/Card.Title>
+                    &lt;Card.Text>{this.props.post.desc}&lt;/Card.Text>
+                &lt;/Card.Body>
+                &lt;Card.Footer className="text-muted">
+                    {"by " + this.state.username + " on " + this.state.dateString}
+                &lt;/Card.Footer>
+            &lt;/Card>
+        )
+    }
+}
+
+export const mapStateToProps = (state) => {
+    return {
+        auth: state.firebase.auth
+    }
+}
+
+export const mapDispatchToProps = (dispatch) => {
+    return {
+        getUsernameFromUid: (uid) => dispatch(getUsernameFromUid(uid))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(PostSummary);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Feed.html">Feed</a></li><li><a href="Home.html">Home</a></li><li><a href="PostSummary.html">PostSummary</a></li><li><a href="Profile.html">Profile</a></li><li><a href="ProfileUpdateForm.html">ProfileUpdateForm</a></li></ul><h3>Global</h3><ul><li><a href="global.html#authReducer">authReducer</a></li><li><a href="global.html#clearAuthError">clearAuthError</a></li><li><a href="global.html#clearProfileUpdateError">clearProfileUpdateError</a></li><li><a href="global.html#createPostSnap">createPostSnap</a></li><li><a href="global.html#createUserPost">createUserPost</a></li><li><a href="global.html#getPost">getPost</a></li><li><a href="global.html#getProfileByUsername">getProfileByUsername</a></li><li><a href="global.html#getUsernameFromUid">getUsernameFromUid</a></li><li><a href="global.html#initState">initState</a></li><li><a href="global.html#postReducer">postReducer</a></li><li><a href="global.html#rootReducer">rootReducer</a></li><li><a href="global.html#SignedInLinks">SignedInLinks</a></li><li><a href="global.html#SignedOutLinks">SignedOutLinks</a></li><li><a href="global.html#signIn">signIn</a></li><li><a href="global.html#signOut">signOut</a></li><li><a href="global.html#signUp">signUp</a></li><li><a href="global.html#SocialNavbar">SocialNavbar</a></li><li><a href="global.html#updateFeed">updateFeed</a></li><li><a href="global.html#updateProfile">updateProfile</a></li><li><a href="global.html#updateUserFeed">updateUserFeed</a></li><li><a href="global.html#validateBio">validateBio</a></li><li><a href="global.html#validateDesc">validateDesc</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validatePassword">validatePassword</a></li><li><a href="global.html#validateTitle">validateTitle</a></li><li><a href="global.html#validateUsername">validateUsername</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Aug 06 2019 16:50:32 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
