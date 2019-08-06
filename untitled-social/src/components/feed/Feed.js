@@ -1,7 +1,10 @@
 import React, {Component} from 'react';
 import {Container, Row, Col, Card} from 'react-bootstrap';
+import {connect} from 'react-redux';
 
 import PostSummary from '../posts/PostSummary';
+
+import {updateFeed} from '../../store/actions/postActions';
 
 /**
  * Contain's user's content feed
@@ -11,69 +14,58 @@ class Feed extends Component {
         super(props);
 
         this.state = {
-            data: null
+            feed: null
         }
+    }
+
+    /**
+     * Update feed on component mount
+     */
+    componentDidMount = () => {
+        this.props.updateFeed(this.props.auth.uid);
     }
 
     /**
      * build feed for user from data in props
      */
     assembleFeed = () => {
-        var testpost = {
-            title: "Test post",
-            desc: "The description of this test post"
-        };
 
-        var posts = [testpost, testpost, testpost, testpost, testpost];
-        var postsLength = posts.length;
-        var temp = null;
+        var feed = this.props.posts.feed;
+        var feedLength = feed.length;
         var mapping = [];
 
         /**
          * Map post summaries to card decks, to make two columns
          */
-        for(var i = 0; i < postsLength; i++) {
+        for(var i = 0; i < feedLength; i++) {
             // separate into two cols by even/odd index
-            if(i % 2 === 0) {
-                temp=posts[i];
-
-                // if last post, put in separate row
-                if(i === postsLength-1) {
-                    mapping.push(
-                        <Row key={i}>
-                            <Col md={6}>
-                                <PostSummary post={temp} />
-                            </Col>
-                        </Row>
-                    );
-                }
-            } else {
-                mapping.push(
-                    <Row key={i}>
-                        <Col md={6}><PostSummary post={temp} /></Col>
-                        <Col md={6}><PostSummary post={posts[i]} /></Col>
-                    </Row>
-                );
-            }
+            mapping.push(
+                <Row key={i} className="justify-content-center">
+                    <Col md={8}>
+                        <PostSummary post={feed[i]} />
+                    </Col>
+                </Row>
+            )
         }
 
         return mapping;
     }
 
     render() {
-        
-        var feed = this.assembleFeed();
+        var feed = this.props.posts.feed && this.props.posts.feed.length > 0 ? this.assembleFeed() : null;
 
         return (
             <Container className="pt-4">
                 <Row>
                     <Col>
                         {feed ? feed : (
-                            <Row>
+                            <Row className="justify-content-center">
                                 <Col md={6}>
                                     <Card>
-                                        <Card.Title>No Posts!</Card.Title>
-                                        <Card.Text>Maybe another time?</Card.Text>
+                                        <Card.Body>
+                                            <Card.Title>No Posts!</Card.Title>
+                                            <Card.Text>Maybe another time?</Card.Text>
+                                        </Card.Body>
                                     </Card>
                                 </Col>
                             </Row>
@@ -85,4 +77,17 @@ class Feed extends Component {
     }
 }
 
-export default Feed;
+const mapStateToProps = (state) => {
+    return {
+        auth: state.firebase.auth,
+        posts: state.posts
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        updateFeed: (uid) => dispatch(updateFeed(uid))
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Feed);

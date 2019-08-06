@@ -18,7 +18,7 @@ class CreatePost extends Component {
                 type: null,
                 title: null,
                 desc: null,
-                author: this.props.profile.username,
+                author: this.props.auth.uid,
                 time: null,
                 content: null,
                 topic: null
@@ -60,7 +60,7 @@ class CreatePost extends Component {
             post.topic = "";
 
             // create new post
-            // this.props.createUserPost(post);
+            this.props.createUserPost(post);
 
             //
             // Reset form to original state
@@ -77,6 +77,9 @@ class CreatePost extends Component {
                 post,
                 submitted: false
             }, this.validateState());
+
+            // toggle form visible
+            this.props.toggleCreatePostForm();
         } else {
             this.setState({
                 submitted: true
@@ -151,6 +154,7 @@ class CreatePost extends Component {
 
 const mapStateToProps = (state) => {
     return {
+        auth: state.firebase.auth,
         profile: state.firebase.profile
     }
 }

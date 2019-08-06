@@ -2,9 +2,10 @@
  * Initial state of posts store
  */
 const initState = {
-    userPosts: null,
+    feed: null,
     userPostError: null,
-    postSnapError: null
+    postSnapError: null,
+    feedUpdateError: null
 }
 
 /**
@@ -39,10 +40,24 @@ const postReducer = (state = initState, action) => {
                 userPostError: action.err.message
             }
 
-        case 'UPDATE_USER_POSTS':
+        case 'FEED_UPDATE':
             return {
                 ...state,
-                userPosts: action.userPosts
+                feed: action.feed,
+                feedUpdateError: null
+            }
+
+        case 'FEED_UPDATE_ERR':
+            return {
+                ...state,
+                feedUpdateError: action.err.message
+            }
+
+        case 'CLEAR_FEED':
+            return {
+                ...state,
+                feed: null,
+                feedUpdateError: null
             }
 
         default:

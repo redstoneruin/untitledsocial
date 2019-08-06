@@ -11,6 +11,7 @@ export const createUserPost = (post) => {
         .then((callback) => {
             var path = callback.path;
             var postId = callback.id;
+            // create new postSnap with post info
             dispatch(createPostSnap(uid, postId, path));
             dispatch({type: 'USER_POST_SUCCESS'});
         })
@@ -20,6 +21,8 @@ export const createUserPost = (post) => {
 
 /**
  * Create snap of post at given path
+ * @param {string} uid - User's user id
+ * @param {string} postId - Id of post to add
  */
 const createPostSnap = (uid, postId) => {
     return(dispatch, getStore, {getFirestore}) => {
@@ -60,5 +63,74 @@ const createPostSnap = (uid, postId) => {
         })
         // catch errors associated with getting doc from path
         .catch(err => dispatch({type: 'POST_SNAP_ERR', err}));
+    }
+}
+
+/**
+ * Updates feed for user at given id
+ * @param {string} uid - User's user id 
+ */
+export const updateFeed = (uid) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        const db = getFirestore();
+        // get postSnap collection
+        db.collection("posts").get()
+        .then(snapshot => {
+            // create feed array to return
+            var feed = [];
+            var snapIndex = 0;
+            // loop through post snapshots to build post array
+            snapshot.forEach((postSnap) => {
+                postSnap = postSnap.data();
+
+                // get post represented by postSnap
+                dispatch(getPost(postSnap.path))
+                .then(post => {
+                    // append post to feed
+                    feed = [post, ...feed];
+
+                    // if last post in array, dispatch success
+                    snapIndex++;
+                    if(snapIndex === snapshot.docs.length) {
+                        // feed built, add to store
+                        dispatch({type: 'FEED_UPDATE', feed});
+                    }
+                })
+                // catch errors from getPost function
+                .catch(err => dispatch({type: 'FEED_UPDATE_ERR', err}));
+            });
+        })
+        // catch errors assoc. with getting postSnap collection data
+        .catch(err => dispatch({type: 'FEED_UPDATE_ERR', err}));
+    }
+}
+
+/**
+ * Resolves post at given path
+ * @param {string} path - String path to post
+ */
+const getPost = (path) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        return new Promise((resolve, reject) => {
+            const db = getFirestore();
+
+            // get post at given path
+            db.doc(path).get()
+            .then(post => {
+                // if post at path exists, resolve with post value
+                if(post.exists) {
+                    return resolve(post.data());
+                } else {
+                    // post dne, reject
+                    return reject({message: "Post does not exist."});
+                }
+                
+            })
+            // catch errors assoc. with getting post reference from database
+            .catch(err => {
+                return reject(err);
+            });
+        });
+
     }
 }
