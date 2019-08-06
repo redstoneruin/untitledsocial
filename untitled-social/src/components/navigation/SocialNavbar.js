@@ -18,10 +18,10 @@ const SocialNavbar = (props) => {
     var logoLink = props.auth.isEmpty ?  "/" : "/feed";
 
     return(
-        <Navbar variant="dark" expand="md" fixed="top" className="navbar-wrapper">
+        <Navbar collapseOnSelect variant="dark" expand="md" fixed="top" className="navbar-wrapper">
             <NavLink to={logoLink}><Navbar.Brand>Untitled Social</Navbar.Brand></NavLink>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" className="hamburger"/>
-            <Navbar.Collapse className="justify-content-end" id="basic-navbar-nav">
+            <Navbar.Toggle aria-controls="responsive-navbar-nav" className="hamburger"/>
+            <Navbar.Collapse className="justify-content-end" id="responsive-navbar-nav">
                 {links}
             </Navbar.Collapse>
         </Navbar>

@@ -46,7 +46,7 @@
 }
 
 .hamburger:hover {
-  background-color: #336b67;
+  background-color: rgb(55, 62, 70);
 }
 
 @keyframes App-logo-spin {
