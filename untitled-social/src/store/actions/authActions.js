@@ -163,7 +163,11 @@ export const getUsernameFromUid = (uid) => {
             db.collection("users").doc(uid).get()
             // resolve with user's username
             .then(user => {
-                return resolve(user.data().username);
+                if(!user.empty) {
+                    return resolve(user.data().username);
+                } else {
+                    return resolve("unknown user");
+                }
             })
             // catch errors from getting user document
             .catch(err => {

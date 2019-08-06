@@ -116,7 +116,7 @@ export const validateDesc = (desc) => {
     if(!desc) {
         valid.desc = false;
         valid.descMessage = "Please enter a description.";
-    } else if(desc.length > 1000) {
+    } else if(desc.length > 5000) {
         valid.desc = false;
         valid.descMessage = "Description over 1000 character limit.";
     } else {

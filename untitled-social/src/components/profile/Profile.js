@@ -4,6 +4,7 @@ import {Container, Card, Spinner, Row, Col, Button} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import {getProfileByUsername} from '../../store/actions/authActions';
+import {updateUserFeed} from '../../store/actions/postActions';
 
 import ProfileUpdateForm from './ProfileUpdateForm';
 import CreatePost from '../feed/CreatePost';
@@ -64,6 +65,10 @@ class Profile extends Component {
      * Toggle create post form visibility
      */
     toggleCreatePostForm = () => {
+        // update feed if form to be closed
+        if(this.state.createPostFormVisible) {
+            this.props.updateUserFeed();
+        }
         this.setState({
             createPostFormVisible: !this.state.createPostFormVisible
         })
@@ -172,7 +177,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        getProfileByUsername: (username) => dispatch(getProfileByUsername(username))
+        getProfileByUsername: (username) => dispatch(getProfileByUsername(username)),
+        updateUserFeed: () => dispatch(updateUserFeed())
     }
 }
 
