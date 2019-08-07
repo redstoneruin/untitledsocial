@@ -107,8 +107,8 @@ class CreatePost extends Component {
     render() {
         return (
             <Row className="mt-4 justify-content-center">
-                <Col>
-                    <Card className="shadow secondary">
+                <Col md={8}>
+                    <Card className="shadow-sm secondary">
                         <Card.Body className="text-left">
                             <Card.Title className="text-center">Create Post</Card.Title>
                             <Form onSubmit={this.handleSubmit} noValidate validated={this.state.validated}>

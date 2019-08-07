@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Redirect} from 'react-router-dom';
-import {Container, Row, Col, Card} from 'react-bootstrap';
+import {Container, Row, Col, Card, Spinner} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import PostSummary from '../posts/PostSummary';
@@ -42,7 +42,17 @@ class Feed extends Component {
         // Check that posts exist
         if((!this.props.userFeed && !this.props.posts.feed)
             || (this.props.userFeed && !this.props.posts.userFeed)) {
-            return null;
+            return  (
+                <Row className="justify-content-center">
+                    <Col md={8}>
+                        <Card className="secondary shadow-sm">
+                            <Card.Body>
+                                <Spinner animation="border" variant="info" />
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            );
         }
 
         // determine if feed is for profile or feed page

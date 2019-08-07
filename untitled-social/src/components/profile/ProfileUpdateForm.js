@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Redirect} from 'react-router-dom';
-import {Container, Row, Col, Card, Form, Button, Alert} from 'react-bootstrap';
+import {Card, Form, Button, Alert} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import '../../styles/ColorScheme.css';
@@ -108,6 +108,7 @@ class ProfileUpdateForm extends Component {
     }
 
     render() {
+
         var profileUpdateWarning = this.props.authStore.profileUpdateError ? (
             <Alert variant="danger" className="mt-2">{this.props.authStore.profileUpdateError}</Alert>
         ) : null
@@ -115,58 +116,54 @@ class ProfileUpdateForm extends Component {
         if(this.state.redirect) return <Redirect to={'/user/' + this.props.profile.username} />
 
         return (
-            <Container className="pt-4 pb-4">
-                <Row>
-                    <Col>
-                        <Card className="tertiary shadow text-left">
-                            <Card.Body>
-                                <Card.Title>Update Profile</Card.Title>
-                                <Form onSubmit={this.handleUpdateProfile}>
-                                    <Form.Group>
-                                        <Form.Label>Username</Form.Label>
-                                        <Form.Control
-                                            required
-                                            onChange={this.handleChange}
-                                            type="text"
-                                            id="username"
-                                            defaultValue={this.state.username}
-                                            isValid={this.state.valid.username}
-                                            isInvalid={!this.state.valid.username}>
-                                        </Form.Control>
-                                        <Form.Control.Feedback type="invalid">{this.state.valid.usernameMessage}</Form.Control.Feedback>
-                                    </Form.Group>
-                                    <Form.Group>
-                                        <Form.Label>Bio</Form.Label>
-                                        <Form.Control
-                                            required
-                                            onChange={this.handleChange}
-                                            as="textarea"
-                                            rows="3"
-                                            id="bio"
-                                            defaultValue={this.state.bio}
-                                            isValid={this.state.valid.bio}
-                                            isInvalid={!this.state.valid.bio}>
-                                        </Form.Control>
-                                        <Form.Control.Feedback type="invalid">{this.state.valid.bioMessage}</Form.Control.Feedback>
-                                    </Form.Group>
-                                </Form>
-                                <div className="text-right">
-                                    <Button 
-                                    className="shadow-sm mr-2" 
-                                    variant='danger' onClick={() => {
-                                        this.props.clearProfileUpdateError();
-                                        this.props.toggleProfileUpdate();
-                                    }}>Cancel</Button>
-                                    <Button 
-                                    className="primary-button shadow-sm" 
-                                    onClick={this.handleUpdateProfile}>Update Profile</Button>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                        {profileUpdateWarning}
-                    </Col>
-                </Row>
-            </Container>
+            <div>
+                <Card className="tertiary shadow text-left">
+                    <Card.Body>
+                        <Card.Title>Update Profile</Card.Title>
+                        <Form onSubmit={this.handleUpdateProfile}>
+                            <Form.Group>
+                                <Form.Label>Username</Form.Label>
+                                <Form.Control
+                                    required
+                                    onChange={this.handleChange}
+                                    type="text"
+                                    id="username"
+                                    defaultValue={this.state.username}
+                                    isValid={this.state.valid.username}
+                                    isInvalid={!this.state.valid.username}>
+                                </Form.Control>
+                                <Form.Control.Feedback type="invalid">{this.state.valid.usernameMessage}</Form.Control.Feedback>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Bio</Form.Label>
+                                <Form.Control
+                                    required
+                                    onChange={this.handleChange}
+                                    as="textarea"
+                                    rows="3"
+                                    id="bio"
+                                    defaultValue={this.state.bio}
+                                    isValid={this.state.valid.bio}
+                                    isInvalid={!this.state.valid.bio}>
+                                </Form.Control>
+                                <Form.Control.Feedback type="invalid">{this.state.valid.bioMessage}</Form.Control.Feedback>
+                            </Form.Group>
+                        </Form>
+                        <div className="text-right">
+                            <Button
+                                className="shadow-sm mr-2"
+                                variant='danger' onClick={() => {
+                                    this.props.clearProfileUpdateError();
+                                    this.props.toggleProfileUpdate();
+                                }}>Cancel</Button>
+                            <Button
+                                className="primary-button shadow-sm"
+                                onClick={this.handleUpdateProfile}>Update Profile</Button>
+                        </div>
+                    </Card.Body>
+                </Card>
+                {profileUpdateWarning}
+            </div>
         )
     }
 }

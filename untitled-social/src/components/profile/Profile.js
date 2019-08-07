@@ -83,11 +83,10 @@ class Profile extends Component {
         var loadingScreen = (
             <Container className="pt-4">
                 <Row className="justify-content-center">
-                    <Col md={6}>
-                        <Card>
+                    <Col>
+                        <Card className="secondary shadow-sm">
                             <Card.Body>
-                                <Card.Title>Profile is loading</Card.Title>
-                                <Spinner className="mt-3" animation="border"></Spinner>
+                                <Spinner animation="border" variant="info" />
                             </Card.Body>
                         </Card>
                     </Col>
@@ -95,32 +94,45 @@ class Profile extends Component {
             </Container>
         )
 
-
-        // Profile update form to display to logged in users
-        var profileUpdateForm = this.state.updateFormVisible ? (
-            <ProfileUpdateForm 
-            toggleProfileUpdate={this.toggleProfileUpdate} 
-            updateUserProfileInfo={this.updateUserProfileInfo}
-            route={this.state.route} />
-        ) : (
-            // only display update profile button if on current user's profile
-            this.props.loadedProfile && this.props.loadedProfile.username === this.props.profile.username ? (
-                <Button variant="info" className="mr-2 shadow-sm" onClick={this.toggleProfileUpdate}>Update Profile</Button>
-            ) : null
-        )
-
         // Determine whether to show create post form or button to expand
         var createPostForm =  this.state.createPostFormVisible ? (
             <CreatePost toggleCreatePostForm={this.toggleCreatePostForm} />
-        ) :  null
+        ) :  null;
 
+        // button for toggling create post form, must be viewing profile of currently logged in user
         var createPostButton = this.props.loadedProfile 
         && !this.state.createPostFormVisible
         && this.props.loadedProfile.username === this.props.profile.username ? (
             <Button className="primary-button shadow-sm mr-2" onClick={this.toggleCreatePostForm}>Create Post</Button>
-        ) : null
+        ) : null;
 
-        if(!this.props.auth.uid) return <Redirect to='/login' />
+        // button for updating profile, must be viewing profile of currently logged in user
+        var updateProfileButton = this.props.loadedProfile 
+        && this.props.loadedProfile.username === this.props.profile.username ? (
+            <Button variant="info" className="mr-2 shadow-sm" onClick={this.toggleProfileUpdate}>Update Profile</Button>
+        ) : null;
+
+        // Profile card visible to user, either profile or update form
+        var profileCard = this.props.loadedProfile && !this.state.updateFormVisible ? (
+            <Card className="shadow secondary">
+                <Card.Body className="text-left">
+                    <Card.Title>{this.props.loadedProfile.username}</Card.Title>
+                    <Card.Text>{this.props.loadedProfile.bio ? this.props.loadedProfile.bio : null}</Card.Text>
+                    <div className="text-right">
+                        {updateProfileButton}
+                        {createPostButton}
+                    </div>
+                </Card.Body>
+            </Card>
+        ) : (
+            <ProfileUpdateForm 
+            toggleProfileUpdate={this.toggleProfileUpdate} 
+            updateUserProfileInfo={this.updateUserProfileInfo}
+            route={this.state.route} />
+        );
+
+        // route guard
+        if(!this.props.auth.uid) return <Redirect to='/login' />;
 
         // Display if load error present
         if(this.props.userLoadError) return (
@@ -140,28 +152,19 @@ class Profile extends Component {
 
         // return loading screen if no profile data yet
         if(!this.props.loadedProfile) return loadingScreen;
-        return (
-            <Container className="pt-4">
-                <Row className="justify-content-center">
-                    <Col md={10}>
-                        <Card className="shadow secondary">
-                            <Card.Body className="text-left">
-                                <Card.Title>{this.props.loadedProfile.username}</Card.Title>
-                                <Card.Text>{this.props.loadedProfile.bio ? this.props.loadedProfile.bio : (
-                                    null
-                                )}</Card.Text>
-                                <div className="text-right">
-                                    {profileUpdateForm}
-                                    {createPostButton}
-                                </div>
-                            </Card.Body>
-                        </Card>
-                        {createPostForm}
-                    </Col>
-                </Row>
 
+        return (
+            <div>
+                <Container className="pt-4">
+                    <Row className="justify-content-center">
+                        <Col md={10}>
+                            {profileCard}
+                        </Col>
+                    </Row>
+                    {createPostForm}
+                </Container>
                 <Feed userFeed={true} />
-            </Container>
+            </div>
         )
     }
 }
