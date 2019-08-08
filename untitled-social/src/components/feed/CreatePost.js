@@ -5,7 +5,7 @@ import React, {Component} from 'react';
 import {Row, Col, Card, Form, Button} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
-import {validateTitle, validateDesc} from '../../shared/validation';
+import {validateTitle, validateDesc, getPostType} from '../../shared/validation';
 import {createUserPost} from '../../store/actions/postActions';
 
 class CreatePost extends Component {
@@ -23,6 +23,7 @@ class CreatePost extends Component {
                 content: null,
                 topic: null
             },
+            files: null,
             valid: {
                 title: false,
                 titleMessage: null,
@@ -44,6 +45,12 @@ class CreatePost extends Component {
         }, this.validateState());
     }
 
+    handleFile = (e) => {
+        this.setState({
+            files: e.target.files
+        }, this.validateState());
+    }
+
     /**
      * Handle create post form submission
      */
@@ -56,7 +63,6 @@ class CreatePost extends Component {
             //
             post.time = new Date();
             post.content = "";
-            post.type = "text";
             post.topic = "";
 
             // create new post
@@ -91,15 +97,23 @@ class CreatePost extends Component {
      * Handle validation for items in state
      */
     validateState = () => {
+        // validate form components
         var validTitle = validateTitle(this.state.post.title);
         var validDesc = validateDesc(this.state.post.desc);
 
+        // combine validated components
         var valid = Object.assign(validTitle, validDesc);
         var validated = valid.title && valid.desc;
 
+        // get post type based on state
+        var post = this.state.post;
+        post.type = getPostType(post, this.state.files);
+        console.log(post);
+
         this.setState({
             valid,
-            validated
+            validated,
+            post
         })
 
     }
@@ -125,6 +139,17 @@ class CreatePost extends Component {
                                         </Form.Control>
                                         <Form.Control.Feedback type="invalid">{this.state.valid.titleMessage}</Form.Control.Feedback>
                                     </Form.Group>
+
+                                    <Form.Group>
+                                        <Form.Label>Files</Form.Label>
+                                        <Form.Label className="text-muted pl-1">(optional)</Form.Label>
+                                        <Form.Control
+                                            onChange={this.handleFile}
+                                            type="file"
+                                            id="files">
+                                        </Form.Control>
+                                    </Form.Group>
+
                                     <Form.Group>
                                         <Form.Label>Description</Form.Label>
                                         <Form.Control

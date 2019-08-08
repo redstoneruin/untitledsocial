@@ -125,3 +125,42 @@ export const validateDesc = (desc) => {
     }
     return valid;
 }
+
+/**
+ * Get type of post based on fields of post param and included files
+ * @param {Object} post - Post to validate type 
+ * @param {*} files - Files intented for upload
+ */
+export const getPostType = (post, files) => {
+    if(!post) {
+        return null;
+    }
+
+    if(!post.content && !files) {
+        // Neither files nor link exists, text post
+        return "text";
+    } else if(!post.content) {
+        // files exist, link does not
+        if(files.length > 1) {
+            // multiple files, album type
+            return "album";
+        } else if(files.length === 0) {
+            return "text";
+        } else {
+            var fileType = files[0].type;
+            // single file, determine whether image or video
+            if(fileType === "image/gif" || fileType === "image/jpeg" || fileType === "image/webp"
+            || fileType === "image/svg+xml") {
+                return "image";
+            } else {
+                return "video";
+            }
+        }
+    } else if(!files) {
+        // Link exists, files do not
+        return "link";
+    }
+
+    // default to text
+    return "text";
+}
