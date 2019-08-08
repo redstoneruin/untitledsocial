@@ -3,7 +3,7 @@ import {Redirect} from 'react-router-dom';
 import {Container, Card, Spinner, Row, Col, Button, Image} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
-import {getProfileByUsername, getAvatarURLFromUid} from '../../store/actions/authActions';
+import {getProfileByUsername, getAvatarURLFromUsername} from '../../store/actions/authActions';
 import {updateUserFeed} from '../../store/actions/postActions';
 
 import ProfileUpdateForm from './ProfileUpdateForm';
@@ -33,12 +33,15 @@ class Profile extends Component {
      */
     componentDidMount = () => {
         this.updateUserProfileInfo();
-        this.updateProfilePic();
-        
     }
 
-    updateProfilePic = () => {
-        this.props.getAvatarURLFromUid(this.props.auth.uid)
+    /**
+     * Update profile information, including profile picture
+     */
+    updateUserProfileInfo = () => {
+        this.props.getProfileByUsername(this.props.match.params.id);
+
+        this.props.getAvatarURLFromUsername(this.props.match.params.id)
         .then(url => {
             // if url exists, change Image src property
             if(url) {
@@ -50,13 +53,6 @@ class Profile extends Component {
         .catch(err => {
             console.log(err);
         });
-    }
-
-    /**
-     * Update profile information
-     */
-    updateUserProfileInfo = () => {
-        this.props.getProfileByUsername(this.props.match.params.id);
     }
 
     /**
@@ -211,7 +207,7 @@ const mapDispatchToProps = (dispatch) => {
     return {
         getProfileByUsername: (username) => dispatch(getProfileByUsername(username)),
         updateUserFeed: () => dispatch(updateUserFeed()),
-        getAvatarURLFromUid: (uid) => dispatch(getAvatarURLFromUid(uid))
+        getAvatarURLFromUsername: (username) => dispatch(getAvatarURLFromUsername(username))
     }
 }
 

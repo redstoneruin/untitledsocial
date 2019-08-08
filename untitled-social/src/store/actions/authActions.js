@@ -178,27 +178,58 @@ const updateAvatar = (avatar) => {
  * Get downlaod URL for avatar of user at uid, null if dne
  * @param {string} uid - User's user id 
  */
-export const getAvatarURLFromUid = (uid) => {
+export const getAvatarURLFromUsername = (username) => {
     return(dispatch, getStore, {getFirebase}) => {
         return new Promise((resolve, reject) => {
             const firebase = getFirebase();
 
-            // get reference to user's avatar file
-            var avatarRef = firebase.storage().ref().child('profiles/' + uid + '/avatar')
-            if(avatarRef.empty) {
-                return resolve(null);
-            } else {
-                // if image exists, get download url
-                avatarRef.getDownloadURL()
-                .then(url => {
-                    // return url
-                    return resolve(url);
-                })
-                .catch(err => {
-                    return reject(err);
-                })
-            }
+            // get uid of user
+            dispatch(getUidFromUsername(username))
+            .then(uid => {
+                // get reference to user's avatar file
+                var avatarRef = firebase.storage().ref().child('profiles/' + uid + '/avatar')
+                if(avatarRef.empty) {
+                    return resolve(null);
+                } else {
+                    // if image exists, get download url
+                    avatarRef.getDownloadURL()
+                    .then(url => {
+                        // return url
+                        return resolve(url);
+                    })
+                    .catch(err => {
+                        return reject(err);
+                    })
+                }
+            })
+            
         });
+    }
+}
+
+/**
+ * Get uid string from username
+ * @param {string} username - User's username
+ */
+const getUidFromUsername = (username) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        return new Promise((resolve, reject) => {
+            const db = getFirestore();
+
+            db.collection("users").where("username", "==", username).get()
+            .then(users => {
+                if(users.empty) {
+                    return resolve(null);
+                } else {
+                    return resolve(users.docs[0].id);
+                }
+            })
+            // catch errors from getting query snapshot
+            .catch(err => {
+                return reject(err);
+            })
+        })
+        
     }
 }
 
