@@ -1,14 +1,17 @@
 import React, {Component} from 'react';
 import {Redirect} from 'react-router-dom';
-import {Container, Card, Spinner, Row, Col, Button} from 'react-bootstrap';
+import {Container, Card, Spinner, Row, Col, Button, Image} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
-import {getProfileByUsername} from '../../store/actions/authActions';
+import {getProfileByUsername, getAvatarURLFromUid} from '../../store/actions/authActions';
 import {updateUserFeed} from '../../store/actions/postActions';
 
 import ProfileUpdateForm from './ProfileUpdateForm';
 import CreatePost from '../feed/CreatePost';
 import Feed from '../feed/Feed';
+import unknownUserImg from '../../assets/unknownuser.png';
+
+import '../../styles/App.css';
 
 /**
  * User profile component
@@ -20,7 +23,8 @@ class Profile extends Component {
         this.state = {
             route: props.match.params.id,
             updateFormVisible: false,
-            createPostFormVisible: false
+            createPostFormVisible: false,
+            profilePicURL: null
         }
     }
 
@@ -29,6 +33,23 @@ class Profile extends Component {
      */
     componentDidMount = () => {
         this.updateUserProfileInfo();
+        this.updateProfilePic();
+        
+    }
+
+    updateProfilePic = () => {
+        this.props.getAvatarURLFromUid(this.props.auth.uid)
+        .then(url => {
+            // if url exists, change Image src property
+            if(url) {
+                this.setState({
+                    profilePicURL: url
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        });
     }
 
     /**
@@ -116,6 +137,14 @@ class Profile extends Component {
         var profileCard = this.props.loadedProfile && !this.state.updateFormVisible ? (
             <Card className="shadow secondary">
                 <Card.Body className="text-left">
+                    <div className="profile-avatar-container mb-3">
+                        <Image
+                        id="profilePic" 
+                        src={this.state.profilePicURL ? this.state.profilePicURL : unknownUserImg} 
+                        alt="Avatar" 
+                        height="64px"/>
+                    </div>
+
                     <Card.Title>{this.props.loadedProfile.username}</Card.Title>
                     <Card.Text>{this.props.loadedProfile.bio ? this.props.loadedProfile.bio : null}</Card.Text>
                     <div className="text-right">
@@ -165,7 +194,7 @@ class Profile extends Component {
                 </Container>
                 <Feed userFeed={true} />
             </div>
-        )
+        );
     }
 }
 
@@ -181,7 +210,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return {
         getProfileByUsername: (username) => dispatch(getProfileByUsername(username)),
-        updateUserFeed: () => dispatch(updateUserFeed())
+        updateUserFeed: () => dispatch(updateUserFeed()),
+        getAvatarURLFromUid: (uid) => dispatch(getAvatarURLFromUid(uid))
     }
 }
 

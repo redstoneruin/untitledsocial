@@ -18,6 +18,7 @@ class ProfileUpdateForm extends Component {
         this.state = {
             username: this.props.profile.username,
             bio: this.props.profile.bio,
+            avatarFile: null,
             validated: false,
             redirect: false,
             valid: {
@@ -66,7 +67,7 @@ class ProfileUpdateForm extends Component {
         if(this.props.route !== this.props.profile.username) {
             this.setState({
                 redirect: true
-            })
+            });
         }
     }
 
@@ -82,7 +83,7 @@ class ProfileUpdateForm extends Component {
                 bio: this.state.bio
             }
 
-            this.props.updateProfile(this.props.auth.uid, profile)
+            this.props.updateProfile(profile, this.state.avatarFile)
             // If successful, toggle profile update
             .then(() => {
                 this.props.updateUserProfileInfo();
@@ -107,6 +108,12 @@ class ProfileUpdateForm extends Component {
         })
     }
 
+    handleFile = (e) => {
+        this.setState({
+            avatarFile: e.target.files[0]
+        });
+    }
+
     render() {
 
         var profileUpdateWarning = this.props.authStore.profileUpdateError ? (
@@ -122,6 +129,18 @@ class ProfileUpdateForm extends Component {
                         <Card.Title>Update Profile</Card.Title>
                         <Form onSubmit={this.handleUpdateProfile}>
                             <Form.Group>
+                                <Form.Label>Profile Picture</Form.Label>
+                                <Form.Control
+                                    required
+                                    onChange={this.handleFile}
+                                    accept=".jpg, .jpeg, .png, .svg"
+                                    type="file"
+                                    id="avatarFile">
+                                </Form.Control>
+                                <Form.Control.Feedback type="invalid">{this.state.valid.avatarMessage}</Form.Control.Feedback>
+                            </Form.Group>
+
+                            <Form.Group>
                                 <Form.Label>Username</Form.Label>
                                 <Form.Control
                                     required
@@ -134,6 +153,7 @@ class ProfileUpdateForm extends Component {
                                 </Form.Control>
                                 <Form.Control.Feedback type="invalid">{this.state.valid.usernameMessage}</Form.Control.Feedback>
                             </Form.Group>
+
                             <Form.Group>
                                 <Form.Label>Bio</Form.Label>
                                 <Form.Control

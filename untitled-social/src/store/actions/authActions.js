@@ -116,29 +116,36 @@ export const getProfileByUsername = (username) => {
 
 /**
  * Update user's profile data with new object
- * @param {string} uid - User's user id
  * @param {Object} profile - Profile object to replace for user (must be logged in)
+ * @param {File} avatar - Profile pic file, can be null
  */
-export const updateProfile = (uid, profile) => {
+export const updateProfile = (profile, avatar) => {
     return(dispatch, getStore, {getFirestore}) => {
         // return promise to perform async functions
         return new Promise((resolve, reject) => {
             const db = getFirestore();
+            var uid = getStore().firebase.auth.uid;
             var profileRef = db.collection("users").doc(uid);
 
             // Check if username already taken
             db.collection("users").where("username", "==", profile.username).get()
                 .then(snapshot => {
                     // if username DNE or this user owns this username, allow update
+                    // TODO: logic could be better
                     if (snapshot.empty || snapshot.docs[0].data().username === getStore().firebase.profile.username) {
                         // Update firestore at user reference to new object
                         profileRef.update(profile)
-                            // Dispatch success after async update
-                            .then(dispatch({ type: 'PROFILE_UPDATE_SUCCESS' }))
-                            // resolve function
-                            .then(() => {return resolve()})
-                            // catch errors associated with updating
-                            .catch(err => dispatch({ type: 'PROFILE_UPDATE_ERR', err }));
+                        // Dispatch success after async update
+                        .then(dispatch({ type: 'PROFILE_UPDATE_SUCCESS' }))
+                        // resolve function
+                        .then(() => {return resolve()})
+                        // catch errors associated with updating
+                        .catch(err => dispatch({ type: 'PROFILE_UPDATE_ERR', err }));
+
+                        // Update profile pic if exists in method args
+                        if(avatar) {
+                            dispatch(updateAvatar(avatar));
+                        }
                     } else {
                         var err = {message: "Username already taken."}
                         dispatch({ type: 'PROFILE_UPDATE_ERR', err });
@@ -151,7 +158,53 @@ export const updateProfile = (uid, profile) => {
 }
 
 /**
+ * Updates current user's profile picture to given file
+ * @param {File} avatar - Profile picture to update for user in firebase storage 
+ */
+const updateAvatar = (avatar) => {
+    return(dispatch, getStore, {getFirebase}) => {
+        const firebase = getFirebase();
+        var uid = getStore().firebase.auth.uid;
+        // upload file
+        firebase.storage().ref().child('profiles/' + uid + '/avatar').put(avatar)
+        // dispatch success on good upload
+        .then(dispatch({type: 'AVATAR_UPDATE_SUCCESS'}))
+        // catch file upload errors
+        .catch(err => dispatch({type: 'AVATAR_UPDATE_ERR', err}));
+    }
+}
+
+/**
+ * Get downlaod URL for avatar of user at uid, null if dne
+ * @param {string} uid - User's user id 
+ */
+export const getAvatarURLFromUid = (uid) => {
+    return(dispatch, getStore, {getFirebase}) => {
+        return new Promise((resolve, reject) => {
+            const firebase = getFirebase();
+
+            // get reference to user's avatar file
+            var avatarRef = firebase.storage().ref().child('profiles/' + uid + '/avatar')
+            if(avatarRef.empty) {
+                return resolve(null);
+            } else {
+                // if image exists, get download url
+                avatarRef.getDownloadURL()
+                .then(url => {
+                    // return url
+                    return resolve(url);
+                })
+                .catch(err => {
+                    return reject(err);
+                })
+            }
+        });
+    }
+}
+
+/**
  * Returns username of user at given uid
+ * @param {string} uid - User's user id
  */
 export const getUsernameFromUid = (uid) => {
     return(dispatch, getStore, {getFirestore}) => {

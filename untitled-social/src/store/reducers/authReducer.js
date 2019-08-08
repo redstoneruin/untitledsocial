@@ -5,7 +5,8 @@ const initState = {
     authError: null,
     loadedProfile: null,
     userLoadError: null,
-    profileUpdateError: null
+    profileUpdateError: null,
+    avatarUpdateError: null
 }
 
 /**
@@ -16,6 +17,18 @@ const initState = {
 const authReducer = (state = initState, action) => {
     var authError;
     switch(action.type) {
+        case 'AVATAR_UPDATE_SUCCESS':
+            return {
+                ...state,
+                avatarUpdateError: null
+            }
+            
+        case 'AVATAR_UPDATE_ERR':
+            return {
+                ...state,
+                avatarUpdateError: action.err.message
+            }
+
         case 'PROFILE_UPDATE_SUCCESS':
             return {
                 ...state,
@@ -84,6 +97,7 @@ const authReducer = (state = initState, action) => {
             }
 
         case 'LOGIN_ERR':
+            // Clean up login error messages for users
             authError = action.err.message;
             if(action.err.code === 'auth/user-not-found') {
                 authError = 'User not found';
