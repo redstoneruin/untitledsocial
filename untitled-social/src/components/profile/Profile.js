@@ -65,7 +65,7 @@ class Profile extends Component {
                 updateFormVisible: false
             }, () => {
                 // after setting state, update profile data
-                this.props.getProfileByUsername(this.state.route);
+                this.updateUserProfileInfo();
             })
         }
     }

@@ -8,32 +8,32 @@ export const signUp = (newUser) => {
         const db = getFirestore();
 
         db.collection("users").where("username", "==", newUser.username).get()
-        .then(snapshot => {
-            // If user found, cannot create new user
-            if(!snapshot.empty) {
-                dispatch({type: 'SIGNUP_ERR', err: {message: "Username already exists"}});
-            } else {
-                // Create new user with authentication
-                firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
-                // Attach displayname to firebase user document
-                .then(response => {
-                    console.log("Auth response:")
-                    console.log(response);
-                    db.collection('users').doc(response.user.uid).set({
-                        username: newUser.username,
-                        joinTime: new Date()
-                    })
-                    // signup successful
-                    .then(dispatch({type: 'SIGNUP_SUCCESS'}))
-                    // catch errors associated with posting data to firestore
-                    .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
-                })
-                // catch errors associated with authenticating user
-                .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
-            }
-        })
-        // Catch errors associated with finding user document
-        .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
+            .then(snapshot => {
+                // If user found, cannot create new user
+                if(!snapshot.empty) {
+                    dispatch({type: 'SIGNUP_ERR', err: {message: "Username already exists"}});
+                } else {
+                    // Create new user with authentication
+                    firebase.auth().createUserWithEmailAndPassword(newUser.email, newUser.password)
+                        // Attach displayname to firebase user document
+                        .then(response => {
+                            console.log("Auth response:")
+                            console.log(response);
+                            db.collection('users').doc(response.user.uid).set({
+                                username: newUser.username,
+                                joinTime: new Date()
+                            })
+                                // signup successful
+                                .then(dispatch({type: 'SIGNUP_SUCCESS'}))
+                                // catch errors associated with posting data to firestore
+                                .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
+                        })
+                        // catch errors associated with authenticating user
+                        .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
+                }
+            })
+            // Catch errors associated with finding user document
+            .catch(err => dispatch({type: 'SIGNUP_ERR', err}));
     }
 }
 
@@ -47,18 +47,18 @@ export const signIn = (user) => {
         const db = getFirestore();
         // sign in user with email and password given
         firebase.auth().signInWithEmailAndPassword(user.email, user.password)
-        // dispatch success
-        .then((response) => {
-            db.collection("users").doc(response.user.uid).get().then(user => {
-                if(user) {
-                    dispatch({type: 'LOGIN_SUCCESS'});
-                } else {
-                    dispatch({type: 'LOGIN_ERR', err: {message: 'User data does not exist'}})
-                }
+            // dispatch success
+            .then((response) => {
+                db.collection("users").doc(response.user.uid).get().then(user => {
+                    if(user) {
+                        dispatch({type: 'LOGIN_SUCCESS'});
+                    } else {
+                        dispatch({type: 'LOGIN_ERR', err: {message: 'User data does not exist'}})
+                    }
+                })
             })
-        })
-        // catch errors associated with signing in
-        .catch(err => dispatch({type: 'LOGIN_ERR', err}))
+            // catch errors associated with signing in
+            .catch(err => dispatch({type: 'LOGIN_ERR', err}))
     }
 }
 
@@ -71,10 +71,10 @@ export const signOut = () => {
 
         // sign out with firebase
         firebase.auth().signOut()
-        // dispatch successful signout
-        .then(dispatch({type: 'SIGNOUT_SUCCESS'}))
-        // catch errors associated with signing out
-        .catch(err => dispatch({type: 'SIGNOUT_ERR', err}));
+            // dispatch successful signout
+            .then(dispatch({type: 'SIGNOUT_SUCCESS'}))
+            // catch errors associated with signing out
+            .catch(err => dispatch({type: 'SIGNOUT_ERR', err}));
     }
 }
 
@@ -98,19 +98,19 @@ export const getProfileByUsername = (username) => {
         const db = getFirestore();
 
         db.collection("users").where("username", "==", username).get()
-        // Get profile data after async query
-        .then(querySnapshot => {
-            if(querySnapshot.empty) {
-                dispatch({type: 'USER_LOAD_ERR', err: {message: 'User not found'}});
-            } else {
-                // Dispatch to load profile into store
-                querySnapshot.forEach(doc => {
-                    dispatch({type: 'USER_LOADED', user: doc.data()});
-                })
-            }
-        })
-        // Catch errors associated with firestore query
-        .catch(err => dispatch({type: 'USER_LOAD_ERR', err}));
+            // Get profile data after async query
+            .then(querySnapshot => {
+                if(querySnapshot.empty) {
+                    dispatch({type: 'USER_LOAD_ERR', err: {message: 'User not found'}});
+                } else {
+                    // Dispatch to load profile into store
+                    querySnapshot.forEach(doc => {
+                        dispatch({type: 'USER_LOADED', user: doc.data()});
+                    })
+                }
+            })
+            // Catch errors associated with firestore query
+            .catch(err => dispatch({type: 'USER_LOAD_ERR', err}));
     }
 }
 
@@ -135,12 +135,12 @@ export const updateProfile = (profile, avatar) => {
                     if (snapshot.empty || snapshot.docs[0].data().username === getStore().firebase.profile.username) {
                         // Update firestore at user reference to new object
                         profileRef.update(profile)
-                        // Dispatch success after async update
-                        .then(dispatch({ type: 'PROFILE_UPDATE_SUCCESS' }))
-                        // resolve function
-                        .then(() => {return resolve()})
-                        // catch errors associated with updating
-                        .catch(err => dispatch({ type: 'PROFILE_UPDATE_ERR', err }));
+                            // Dispatch success after async update
+                            .then(dispatch({ type: 'PROFILE_UPDATE_SUCCESS' }))
+                            // resolve function
+                            .then(() => {return resolve()})
+                            // catch errors associated with updating
+                            .catch(err => dispatch({ type: 'PROFILE_UPDATE_ERR', err }));
 
                         // Update profile pic if exists in method args
                         if(avatar) {
@@ -167,10 +167,10 @@ const updateAvatar = (avatar) => {
         var uid = getStore().firebase.auth.uid;
         // upload file
         firebase.storage().ref().child('profiles/' + uid + '/avatar').put(avatar)
-        // dispatch success on good upload
-        .then(dispatch({type: 'AVATAR_UPDATE_SUCCESS'}))
-        // catch file upload errors
-        .catch(err => dispatch({type: 'AVATAR_UPDATE_ERR', err}));
+            // dispatch success on good upload
+            .then(dispatch({ type: 'AVATAR_UPDATE_SUCCESS' }))
+            // catch file upload errors
+            .catch(err => dispatch({ type: 'AVATAR_UPDATE_ERR', err }));
     }
 }
 
@@ -179,36 +179,36 @@ const updateAvatar = (avatar) => {
  * @param {string} uid - User's user id 
  */
 export const getAvatarURLFromUsername = (username) => {
-    return(dispatch, getStore, {getFirebase}) => {
+    return(dispatch, getStore, { getFirebase }) => {
         return new Promise((resolve, reject) => {
             const firebase = getFirebase();
 
             // get uid of user
             dispatch(getUidFromUsername(username))
-            .then(uid => {
-                // get reference to user's avatar file
-                var avatarRef = firebase.storage().ref().child('profiles/' + uid + '/avatar')
-                if(avatarRef.empty) {
-                    return resolve(null);
-                } else {
+                .then(uid => {
+                    // get reference to user's avatar file
+                    var avatarRef = firebase.storage().ref().child("profiles/" + uid + "/avatar");
+
                     // if image exists, get download url
                     avatarRef.getDownloadURL()
-                    .then(url => {
-                        // return url
-                        return resolve(url);
-                    })
-                    .catch(err => {
-                        return reject(err);
-                    })
-                }
-            })
-            
+                        .then(url => {
+                            // return url
+                            return resolve(url);
+                        })
+                        // if error occurs, return null
+                        .catch(err => {
+                            return resolve(null);
+                        })
+                })
+                // Handle errors from getting uid from username (should not occur)
+                .catch(err => console.log(err));
+
         });
     }
 }
 
 /**
- * Get uid string from username
+ * Get uid string from username, resolves either with uid or with null
  * @param {string} username - User's username
  */
 const getUidFromUsername = (username) => {
@@ -217,17 +217,17 @@ const getUidFromUsername = (username) => {
             const db = getFirestore();
 
             db.collection("users").where("username", "==", username).get()
-            .then(users => {
-                if(users.empty) {
-                    return resolve(null);
-                } else {
-                    return resolve(users.docs[0].id);
-                }
-            })
-            // catch errors from getting query snapshot
-            .catch(err => {
-                return reject(err);
-            })
+                .then(users => {
+                    if(users.empty) {
+                        return resolve(null);
+                    } else {
+                        return resolve(users.docs[0].id);
+                    }
+                })
+                // catch errors from getting query snapshot
+                .catch(err => {
+                    return reject(err);
+                });
         })
         
     }
@@ -245,21 +245,19 @@ export const getUsernameFromUid = (uid) => {
 
             // get user document at uid
             db.collection("users").doc(uid).get()
-            // resolve with user's username
-            .then(user => {
-                if(!user.empty) {
-                    return resolve(user.data().username);
-                } else {
-                    return resolve("unknown user");
-                }
-            })
-            // catch errors from getting user document
-            .catch(err => {
-                return reject(err)
-            });
-        })
-        
-        
+                // resolve with user's username
+                .then(user => {
+                    if(!user.empty) {
+                        return resolve(user.data().username);
+                    } else {
+                        return resolve("unknown user");
+                    }
+                })
+                // catch errors from getting user document
+                .catch(err => {
+                    return reject(err)
+                });
+        });
     }
 }
 
