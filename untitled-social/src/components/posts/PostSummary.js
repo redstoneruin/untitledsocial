@@ -4,6 +4,7 @@ import {Card} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import {getUsernameFromUid} from '../../store/actions/authActions';
+import {getSingleFileURLFromPostId} from '../../store/actions/postActions';
 
 import '../../styles/ColorScheme.css'
 
@@ -16,7 +17,8 @@ class PostSummary extends Component {
         this.state = {
             redirect: false,
             username: null,
-            dateString: null
+            dateString: null,
+            files: null
         }
     }
 
@@ -49,7 +51,20 @@ class PostSummary extends Component {
         // set date in state
         this.setState({
             dateString
-        })
+        });
+
+        // get files if necessary
+        if(this.props.post.type === "image") {
+            // get image download url
+            this.props.getSingleFileURLFromPostId(this.props.post.id)
+                .then(url => {
+                    // attach to files, keep in array format
+                    var files = [url];
+                    this.setState({
+                        files
+                    });
+                })
+        }
     }
 
     /**
@@ -60,11 +75,15 @@ class PostSummary extends Component {
     }
 
     render() {
+        var image = this.props.post.type === "image"  && this.state.files ? (
+            <Card.Img variant="top" src={this.state.files[0]} />
+        ) : null;
         // redirect to this post
         if(this.state.redirect) return <Redirect to={"/post/" + this.props.postId} />
 
         return(
             <Card style={{cursor: "pointer"}} onClick={this.handleClick} className="shadow-sm secondary mb-4 selection-hover-fade text-left">
+                {image}
                 <Card.Body className="text-left">
                     <Card.Title>{this.props.post.title}</Card.Title>
                     <Card.Text>{this.props.post.desc}</Card.Text>
@@ -85,7 +104,8 @@ export const mapStateToProps = (state) => {
 
 export const mapDispatchToProps = (dispatch) => {
     return {
-        getUsernameFromUid: (uid) => dispatch(getUsernameFromUid(uid))
+        getUsernameFromUid: (uid) => dispatch(getUsernameFromUid(uid)),
+        getSingleFileURLFromPostId: (postId) => dispatch(getSingleFileURLFromPostId(postId))
     }
 }
 

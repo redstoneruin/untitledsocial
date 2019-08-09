@@ -1,8 +1,9 @@
 /**
  * Create new post for current user
  * @param {Object} post - Post object with fields: type, title, desc, author, time, content
+ * @param {File[]} files - Array of files to include, can be null
  */
-export const createUserPost = (post) => {
+export const createUserPost = (post, files) => {
     return(dispatch, getStore, {getFirestore}) => {
         const db = getFirestore();
         const uid = getStore().firebase.auth.uid;
@@ -13,9 +14,56 @@ export const createUserPost = (post) => {
                 var postId = callback.id;
                 // create new postSnap with post info
                 dispatch(createPostSnap(uid, postId, path));
+
+                // upload images to storage if necessary
+                if(post.type === "image" || post.type === "album") {
+                    dispatch(uploadPostImages(postId, files));
+                }
+
                 dispatch({type: 'USER_POST_SUCCESS'});
             })
             .catch(err => dispatch({type: 'USER_POST_ERR', err}));
+    }
+}
+
+/**
+ * Uploads images for post at given postId parameter
+ * @param {string} postId - Post ID to associate with images
+ * @param {File[]} files - Files to attach to post 
+ */
+const uploadPostImages = (postId, files) => {
+    return(dispatch, getStore, {getFirebase}) => {
+        const firebase = getFirebase();
+        // get reference for post image storage folder
+        var postStorageRef = firebase.storage().ref().child("posts/" + postId + "/");
+        // loop through files and upload
+        for(var i = 0; i < files.length; i++) {
+            postStorageRef.child(i.toString()).put(files[i])
+            // catch errors from uploading file
+            .catch(err => console.log(err));
+        }
+    }
+}
+
+/**
+ * Gets download url of single file of post
+ * @param {string} postId - Post id to retrieve file download url from
+ */
+export const getSingleFileURLFromPostId = (postId) => {
+    return(dispatch, getStore, {getFirebase}) => {
+        return new Promise((resolve, reject) => {
+            const firebase = getFirebase();
+
+            firebase.storage().ref().child("posts/" + postId + "/0").getDownloadURL()
+                .then(url => {
+                    return resolve(url);
+                })
+                // catch downlaodURL errors
+                .catch(err => {
+                    return reject(err);
+                });
+        });
+        
     }
 }
 
@@ -74,18 +122,22 @@ export const updateFeed = () => {
     return(dispatch, getStore, {getFirestore}) => {
         const db = getFirestore();
         // get postSnap collection
-        db.collection("posts").get()
+        db.collection("posts").orderBy("time").get()
             .then(snapshot => {
                 // create feed array to return
                 var feed = [];
                 var snapIndex = 0;
+
                 // loop through post snapshots to build post array
+                // using forEach to avoid functions in loops
                 snapshot.forEach((postSnap) => {
                     postSnap = postSnap.data();
 
                     // get post represented by postSnap
                     dispatch(getPost(postSnap.path))
                         .then(post => {
+                            // set id field for post
+                            post.id = postSnap.postId;
                             // append post to feed
                             feed = [post, ...feed];
 
@@ -151,7 +203,9 @@ export const updateUserFeed = () => {
 
                     // loop through docs and push to array
                     for(var i = 0; i < snapshot.docs.length; i++) {
-                        userFeed.push(snapshot.docs[i].data());
+                        var post = snapshot.docs[i].data();
+                        post.id = snapshot.docs[i].id;
+                        userFeed = [post, ...userFeed];
                     }
 
                     dispatch({type: 'USER_FEED_UPDATE', userFeed});

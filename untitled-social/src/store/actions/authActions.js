@@ -166,7 +166,7 @@ const updateAvatar = (avatar) => {
         const firebase = getFirebase();
         var uid = getStore().firebase.auth.uid;
         // upload file
-        firebase.storage().ref().child('profiles/' + uid + '/avatar').put(avatar)
+        firebase.storage().ref().child("profiles/" + uid + "/avatar").put(avatar)
             // dispatch success on good upload
             .then(dispatch({ type: 'AVATAR_UPDATE_SUCCESS' }))
             // catch file upload errors

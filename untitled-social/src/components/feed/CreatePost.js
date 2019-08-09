@@ -65,8 +65,11 @@ class CreatePost extends Component {
             post.content = "";
             post.topic = "";
 
+            // get post type based on state
+            post.type = getPostType(post, this.state.files);
+
             // create new post
-            this.props.createUserPost(post);
+            this.props.createUserPost(post, this.state.files);
 
             //
             // Reset form to original state
@@ -105,15 +108,11 @@ class CreatePost extends Component {
         var valid = Object.assign(validTitle, validDesc);
         var validated = valid.title && valid.desc;
 
-        // get post type based on state
-        var post = this.state.post;
-        post.type = getPostType(post, this.state.files);
-        console.log(post);
+        
 
         this.setState({
             valid,
-            validated,
-            post
+            validated
         })
 
     }
@@ -186,7 +185,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        createUserPost: (post) => dispatch(createUserPost(post))
+        createUserPost: (post, files) => dispatch(createUserPost(post, files))
     }
 }
 
