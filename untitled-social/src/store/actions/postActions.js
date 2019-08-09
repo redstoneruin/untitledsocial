@@ -1,3 +1,5 @@
+import {getUidFromUsername} from './authActions';
+
 /**
  * Create new post for current user
  * @param {Object} post - Post object with fields: type, title, desc, author, time, content
@@ -188,32 +190,37 @@ const getPost = (path) => {
 }
 
 /**
- * Update posts of currently logged in user
+ * Update posts of user for profile
  */
-export const updateUserFeed = () => {
+export const updateUserFeed = (username) => {
     return(dispatch, getStore, {getFirestore}) => {
         const db = getFirestore();
-        const uid = getStore().firebase.auth.uid;
-        // Ensure user is logged in
-        if(uid) {
-            var userFeed = [];
-            // get posts of user ordered by date
-            db.collection("users").doc(uid).collection("posts").orderBy("time").get()
-                .then(snapshot => {
+        // get uid
+        dispatch(getUidFromUsername(username))
+        .then(uid => {
+            // Ensure user is logged in
+            if(uid) {
+                var userFeed = [];
+                // get posts of user ordered by date
+                db.collection("users").doc(uid).collection("posts").orderBy("time").get()
+                    .then(snapshot => {
 
-                    // loop through docs and push to array
-                    for(var i = 0; i < snapshot.docs.length; i++) {
-                        var post = snapshot.docs[i].data();
-                        post.id = snapshot.docs[i].id;
-                        userFeed = [post, ...userFeed];
-                    }
+                        // loop through docs and push to array
+                        for(var i = 0; i < snapshot.docs.length; i++) {
+                            var post = snapshot.docs[i].data();
+                            post.id = snapshot.docs[i].id;
+                            userFeed = [post, ...userFeed];
+                        }
 
-                    dispatch({type: 'USER_FEED_UPDATE', userFeed});
-                })
-                // catch errors assoc. with getting user's posts collection
-                .catch(err => dispatch({type: 'USER_FEED_UPDATE_ERR', err}));
-        } else {
-            dispatch({type: 'USER_FEED_UPDATE_ERR', err: {message: "User not logged in."}});
-        }
+                        dispatch({type: 'USER_FEED_UPDATE', userFeed});
+                    })
+                    // catch errors assoc. with getting user's posts collection
+                    .catch(err => dispatch({type: 'USER_FEED_UPDATE_ERR', err}));
+            } else {
+                dispatch({type: 'USER_FEED_UPDATE_ERR', err: {message: "User not logged in."}});
+            }
+        })
+        .catch(err => dispatch({type: 'USER_FEED_UPDATE_ERR', err}));
+        
     }
 }

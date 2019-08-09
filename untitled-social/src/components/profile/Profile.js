@@ -53,6 +53,8 @@ class Profile extends Component {
         .catch(err => {
             console.log(err);
         });
+
+        this.props.updateUserFeed(this.props.match.params.id);
     }
 
     /**
@@ -84,7 +86,7 @@ class Profile extends Component {
     toggleCreatePostForm = () => {
         // update feed if form to be closed
         if(this.state.createPostFormVisible) {
-            this.props.updateUserFeed();
+            this.props.updateUserFeed(this.state.route);
         }
         this.setState({
             createPostFormVisible: !this.state.createPostFormVisible
@@ -206,7 +208,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return {
         getProfileByUsername: (username) => dispatch(getProfileByUsername(username)),
-        updateUserFeed: () => dispatch(updateUserFeed()),
+        updateUserFeed: (username) => dispatch(updateUserFeed(username)),
         getAvatarURLFromUsername: (username) => dispatch(getAvatarURLFromUsername(username))
     }
 }

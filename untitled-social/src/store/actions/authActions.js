@@ -211,7 +211,7 @@ export const getAvatarURLFromUsername = (username) => {
  * Get uid string from username, resolves either with uid or with null
  * @param {string} username - User's username
  */
-const getUidFromUsername = (username) => {
+export const getUidFromUsername = (username) => {
     return(dispatch, getStore, {getFirestore}) => {
         return new Promise((resolve, reject) => {
             const db = getFirestore();
