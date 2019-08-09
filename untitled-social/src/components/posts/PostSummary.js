@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Redirect} from 'react-router-dom';
-import {Card} from 'react-bootstrap';
+import {Card, Spinner, Row} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import {getUsernameFromUid} from '../../store/actions/authActions';
@@ -76,18 +76,27 @@ class PostSummary extends Component {
 
     render() {
         var image = this.props.post.type === "image"  && this.state.files ? (
-            <Card.Img variant="top" src={this.state.files[0]} />
+            <Card.Img src={this.state.files[0]} />
         ) : null;
+
+        var filesLoadingSpinner = (this.props.post.type === "image" || this.props.post.type === "video")
+        && !this.state.files ? (
+            <Row className="justify-content-center">
+                <Spinner animation="border" variant="info" />
+            </Row>
+        ) : null
         // redirect to this post
         if(this.state.redirect) return <Redirect to={"/post/" + this.props.postId} />
 
         return(
             <Card style={{cursor: "pointer"}} onClick={this.handleClick} className="shadow-sm secondary mb-4 selection-hover-fade text-left">
-                {image}
+                
                 <Card.Body className="text-left">
                     <Card.Title>{this.props.post.title}</Card.Title>
                     <Card.Text>{this.props.post.desc}</Card.Text>
+                    {filesLoadingSpinner}
                 </Card.Body>
+                {image}
                 <Card.Footer className="text-muted">
                     {"by " + this.state.username + " on " + this.state.dateString}
                 </Card.Footer>
