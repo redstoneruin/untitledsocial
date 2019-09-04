@@ -85,8 +85,9 @@ class PostSummary extends Component {
                 <Spinner animation="border" variant="info" />
             </Row>
         ) : null
-        // redirect to this post
-        if(this.state.redirect) return <Redirect to={"/post/" + this.props.postId} />
+
+        // redirect to this post to individual post page
+        if(this.state.redirect) return <Redirect to={"/post/" + this.props.post.id} />
 
         return(
             <Card style={{cursor: "pointer"}} onClick={this.handleClick} className="shadow-sm secondary mb-4 selection-hover-fade text-left">

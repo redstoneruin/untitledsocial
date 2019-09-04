@@ -8,6 +8,7 @@ import SignUp from './components/auth/SignUp';
 import SocialNavbar from './components/navigation/SocialNavbar';
 import Profile from './components/profile/Profile';
 import Feed from './components/feed/Feed';
+import Post from './components/posts/Post';
 
 import './styles/App.css';
 
@@ -28,6 +29,7 @@ class App extends Component {
             <Route path="/signup" component={SignUp} />
             <Route path="/feed" component={Feed} />
             <Route path="/user/:id" component={Profile} />
+            <Route path="/post/:id" component={Post} />
             <Route path="/" component={Home} />
           </Switch>
         </div>

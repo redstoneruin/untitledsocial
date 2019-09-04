@@ -9,11 +9,17 @@ export const createUserPost = (post, files) => {
     return(dispatch, getStore, {getFirestore}) => {
         const db = getFirestore();
         const uid = getStore().firebase.auth.uid;
+
         // add post to user's post collection
-        db.collection("users").doc(uid).collection("posts").add(post)
+        var userPostCollection = db.collection("users").doc(uid).collection("posts");
+        userPostCollection.add(post)
             .then((callback) => {
                 var path = callback.path;
                 var postId = callback.id;
+                
+                // Tag post with id
+                post.id = postId;
+                userPostCollection.doc(postId).update(post);
                 // create new postSnap with post info
                 dispatch(createPostSnap(uid, postId, path));
 
