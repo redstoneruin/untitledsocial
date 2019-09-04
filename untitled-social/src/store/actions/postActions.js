@@ -230,3 +230,35 @@ export const updateUserFeed = (username) => {
         
     }
 }
+
+/**
+ * Return post with matching id, guaranteed resolve, null or non-null
+ * @param {string} id 
+ */
+export const getPostByID = (id) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        return new Promise((resolve, reject) => {
+            const db = getFirestore();
+            const postSnapCollection = db.collection("posts");
+    
+            // query postSnaps for field with matching id
+            postSnapCollection.where("postId", "==", id).get()
+                .then(postSnaps => {
+                    if(postSnaps.empty) {
+                        return resolve(null);
+                    }
+                    
+                    var requestedPostSnap = postSnaps.docs[0].data();
+                    dispatch(getPost(requestedPostSnap.path))
+                        .then(post => {
+                            return resolve(post);
+                        });
+
+                })
+                // if error in finding post, resolve with null value
+                .catch(err => {
+                    return resolve(null);
+                })
+        })
+    }
+}
