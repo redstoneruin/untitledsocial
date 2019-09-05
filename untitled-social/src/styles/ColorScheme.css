@@ -37,3 +37,13 @@
     border-color: #9bb2be;
     background-color: #9bb2be;
 }
+
+.summary-image-container {
+    height: 400px;
+}
+
+.summary-image {
+    height: 400px;
+    padding-bottom: 10px;
+    border-radius: 3px;
+}
