@@ -279,20 +279,52 @@ export const deletePost = (id) => {
                     if(postSnaps.empty) {
                         return resolve(false);
                     }
-                    
+
                     /** get postSnap for this post */
                     var postSnap = postSnaps.docs[0].data();
 
-                    /** delete doc at postSnap */
-                    db.doc(postSnap.path).delete()
-                        .then(() => {
-                            // delete postSnap doc by reference
-                            db.collection("posts").doc(postSnaps.docs[0].id).delete()
-                                .then(() => {return resolve(true)});
+                    /** Get post to determine type, and whether media needs to be deleted */
+                    db.doc(postSnap.path).get()
+                        .then(post => {
+                            post = post.data();
+                            
+                            /** decide if image is to be removed, then remove post */
+                            dispatch(contentDeleteSwitcher(post.type, id))
+                                .then(() => {
+                                /** delete doc at postSnap */
+                                db.doc(postSnap.path).delete()
+                                .then(() => {
+                                    // delete postSnap doc by reference
+                                    db.collection("posts").doc(postSnaps.docs[0].id).delete()
+                                        .then(() => {return resolve(true)});
+                                });
+                            });
                         });
             });
-        })
+        });
         
+    }
+}
+
+/**
+ * Decides which type of content to delete, and calls method to delete
+ * given content
+ * @param {string} type 
+ * @param {string} id 
+ */
+const contentDeleteSwitcher = (type, id) => {
+    return(dispatch, getStore) => {
+        return new Promise((resolve, reject) => {
+
+            /** choose method based on type */
+            switch(type) {
+                case "image":
+                    dispatch(deleteImage(id)).then(() => {return resolve()});
+                    break;
+                default:
+                    return resolve();
+            }
+        });
     }
 }
 
@@ -300,16 +332,21 @@ export const deletePost = (id) => {
  * 
  * @param {string} id - string of post to delete images
  */
-export const deleteImage = (id) => {
+const deleteImage = (id) => {
     return(dispatch, getStore, {getFirestore, getFirebase}) => {
         return new Promise((resolve, reject) => {
-            const storageRef = getFirebase().storage();
+            console.log("Deleting image");
+            const storageRef = getFirebase().storage().ref();
             dispatch(getPostByID(id))
                 .then(post => {
+                    console.log("post:");
+                    console.log(post);
                     if(post === null) {
-                        return false;
+                        console.log("post dne");
+                        return reject({message: "Post does not exist"});
                     }
-                    storageRef.child("posts/" + id).delete();
+                    /** delete first image file attached to post, should always be 1 for this type */
+                    storageRef.child("posts/" + id + "/0").delete().then(() => {return resolve()});
                 })
             
         });
