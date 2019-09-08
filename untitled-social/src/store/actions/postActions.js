@@ -262,3 +262,56 @@ export const getPostByID = (id) => {
         })
     }
 }
+
+/**
+ * Deletes post, if current user is owner of post. Returns true if deleted, false if not
+ * @param {string} id - id of post to delete 
+ */
+export const deletePost = (id) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        return new Promise((resolve, reject) => {
+            const db = getFirestore();
+            const postSnapCollection = db.collection("posts");
+
+            /** query db for posts */
+            postSnapCollection.where("postId", "==", id).get()
+                .then(postSnaps => {
+                    if(postSnaps.empty) {
+                        return resolve(false);
+                    }
+                    
+                    /** get postSnap for this post */
+                    var postSnap = postSnaps.docs[0].data();
+
+                    /** delete doc at postSnap */
+                    db.doc(postSnap.path).delete()
+                        .then(() => {
+                            // delete postSnap doc by reference
+                            db.collection("posts").doc(postSnaps.docs[0].id).delete()
+                                .then(() => {return resolve(true)});
+                        });
+            });
+        })
+        
+    }
+}
+
+/**
+ * 
+ * @param {string} id - string of post to delete images
+ */
+export const deleteImage = (id) => {
+    return(dispatch, getStore, {getFirestore, getFirebase}) => {
+        return new Promise((resolve, reject) => {
+            const storageRef = getFirebase().storage();
+            dispatch(getPostByID(id))
+                .then(post => {
+                    if(post === null) {
+                        return false;
+                    }
+                    storageRef.child("posts/" + id).delete();
+                })
+            
+        });
+    }
+}

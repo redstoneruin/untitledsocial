@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
+import {Redirect} from 'react-router-dom';
 import {connect} from 'react-redux';
-import {Container, Row, Col, Card, Spinner} from 'react-bootstrap';
+import {Container, Row, Col, Card, Spinner, Button} from 'react-bootstrap';
 
-import {getPostByID, getSingleFileURLFromPostId} from '../../store/actions/postActions';
+import {getPostByID, getSingleFileURLFromPostId, deletePost} from '../../store/actions/postActions';
 import {getUsernameFromUid} from '../../store/actions/authActions';
 
 import '../../styles/ColorScheme.css';
@@ -18,7 +19,8 @@ class Post extends Component {
             post: null,
             username: null,
             dateString: null,
-            files: null
+            files: null,
+            redirect: null
         }
     }
 
@@ -33,6 +35,10 @@ class Post extends Component {
                 this.setState({
                     post
                 });
+
+                if(post === null) {
+                    return;
+                }
 
                 // get username from uid
                 this.props.getUsernameFromUid(post.author)
@@ -63,9 +69,38 @@ class Post extends Component {
 
     }
 
+    /** handle call to delete post from database */
+    handleDelete = () => {
+        if(this.state.post && this.state.post.author === this.props.auth.uid) {
+            /* dispatch action delete post */
+            this.props.deletePost(this.state.post.id)
+                .then(deleted => {
+                    if(deleted) {
+                        this.setState({
+                            redirect: '/feed'
+                        })
+                    }
+                });
+        }
+    }
+
     render() {
+        if(this.state.redirect) {
+            return (
+                <Redirect to={this.state.redirect} />
+            );
+        }
+
         var image = this.state.post && this.state.post.type === "image" && this.state.files ? (
-            <Card.Img src={this.state.files[0]} />
+            <Card.Img className="mt-3 shadow" src={this.state.files[0]} />
+        ) : null;
+
+        var deleteButton = this.state.post && this.state.post.author === this.props.auth.uid ? (
+            <Row className="justify-content-right text-right">
+                <Col>
+                    <Button variant="danger" onClick={this.handleDelete} className="mt-3 shadow-sm">Delete</Button>
+                </Col>
+            </Row>
         ) : null;
         
         var postCard = this.state.post ? (
@@ -75,7 +110,14 @@ class Post extends Component {
                 </Card.Header>
                 { image }
                 <Card.Body>
-                    {this.state.post.desc}
+                    <Row>
+                        <Col>
+                            {this.state.post.desc}
+                        </Col>
+                    </Row>  
+                    
+                    {deleteButton}
+
                 </Card.Body>
                 <Card.Footer>
                     by {this.state.username} on {this.state.dateString}
@@ -111,7 +153,8 @@ const mapDispatchToProps = (dispatch) => {
     return {
         getPostByID: (id) => dispatch(getPostByID(id)),
         getUsernameFromUid: (uid) => dispatch(getUsernameFromUid(uid)),
-        getSingleFileURLFromPostId: (postId) => dispatch(getSingleFileURLFromPostId(postId))
+        getSingleFileURLFromPostId: (postId) => dispatch(getSingleFileURLFromPostId(postId)),
+        deletePost: (id) => dispatch(deletePost(id))
     }
 }
 
