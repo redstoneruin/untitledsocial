@@ -2,7 +2,7 @@
  * Form for creating new post for a user
  */
 import React, {Component} from 'react';
-import {Row, Col, Card, Form, Button} from 'react-bootstrap';
+import {Card, Form, Button} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import {validateTitle, validateDesc, getPostType} from '../../shared/validation';
@@ -119,59 +119,55 @@ class CreatePost extends Component {
 
     render() {
         return (
-            <Row className="mt-4 justify-content-center">
-                <Col md={8}>
-                    <Card className="shadow-sm secondary">
-                        <Card.Body className="text-left">
-                            <Card.Title className="text-center">Create Post</Card.Title>
-                            <Form onSubmit={this.handleSubmit} noValidate validated={this.state.validated}>
-                                    <Form.Group>
-                                        <Form.Label>Title</Form.Label>
-                                        <Form.Control
-                                            required
-                                            onChange={this.handleChange}
-                                            type="text"
-                                            id="title"
-                                            defaultValue={this.state.title}
-                                            isValid={this.state.valid.title}
-                                            isInvalid={this.state.submitted && !this.state.valid.title}>
-                                        </Form.Control>
-                                        <Form.Control.Feedback type="invalid">{this.state.valid.titleMessage}</Form.Control.Feedback>
-                                    </Form.Group>
+            <Card className="shadow-sm secondary">
+                <Card.Body className="text-left">
+                    <Card.Title className="text-center">Create Post</Card.Title>
+                    <Form onSubmit={this.handleSubmit} noValidate validated={this.state.validated}>
+                        <Form.Group>
+                            <Form.Label>Title</Form.Label>
+                            <Form.Control
+                                required
+                                onChange={this.handleChange}
+                                type="text"
+                                id="title"
+                                defaultValue={this.state.title}
+                                isValid={this.state.valid.title}
+                                isInvalid={this.state.submitted && !this.state.valid.title}>
+                            </Form.Control>
+                            <Form.Control.Feedback type="invalid">{this.state.valid.titleMessage}</Form.Control.Feedback>
+                        </Form.Group>
 
-                                    <Form.Group>
-                                        <Form.Label>Files</Form.Label>
-                                        <Form.Label className="text-muted pl-1">(optional)</Form.Label>
-                                        <Form.Control
-                                            onChange={this.handleFile}
-                                            type="file"
-                                            id="files">
-                                        </Form.Control>
-                                    </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Files</Form.Label>
+                            <Form.Label className="text-muted pl-1">(optional)</Form.Label>
+                            <Form.Control
+                                onChange={this.handleFile}
+                                type="file"
+                                id="files">
+                            </Form.Control>
+                        </Form.Group>
 
-                                    <Form.Group>
-                                        <Form.Label>Description</Form.Label>
-                                        <Form.Control
-                                            required
-                                            onChange={this.handleChange}
-                                            as="textarea"
-                                            rows="3"
-                                            id="desc"
-                                            defaultValue={this.state.desc}
-                                            isValid={this.state.valid.desc}
-                                            isInvalid={this.state.submitted && !this.state.valid.desc}>
-                                        </Form.Control>
-                                        <Form.Control.Feedback type="invalid">{this.state.valid.descMessage}</Form.Control.Feedback>
-                                    </Form.Group>
-                                </Form>
-                                <div className="text-right">
-                                    <Button variant="danger" className="mr-2" onClick={this.props.toggleCreatePostForm}>Cancel</Button>
-                                    <Button className="primary-button" onClick={this.handleSubmit}>Post</Button>
-                                </div>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
+                        <Form.Group>
+                            <Form.Label>Description</Form.Label>
+                            <Form.Control
+                                required
+                                onChange={this.handleChange}
+                                as="textarea"
+                                rows="3"
+                                id="desc"
+                                defaultValue={this.state.desc}
+                                isValid={this.state.valid.desc}
+                                isInvalid={this.state.submitted && !this.state.valid.desc}>
+                            </Form.Control>
+                            <Form.Control.Feedback type="invalid">{this.state.valid.descMessage}</Form.Control.Feedback>
+                        </Form.Group>
+                    </Form>
+                    <div className="text-right">
+                        <Button variant="danger" className="mr-2" onClick={this.props.toggleCreatePostForm}>Cancel</Button>
+                        <Button className="primary-button" onClick={this.handleSubmit}>Post</Button>
+                    </div>
+                </Card.Body>
+            </Card>
         )
     }
 }

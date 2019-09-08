@@ -7,7 +7,6 @@ import {getProfileByUsername, getAvatarURLFromUsername} from '../../store/action
 import {updateUserFeed} from '../../store/actions/postActions';
 
 import ProfileUpdateForm from './ProfileUpdateForm';
-import CreatePost from '../feed/CreatePost';
 import Feed from '../feed/Feed';
 import unknownUserImg from '../../assets/unknownuser.png';
 
@@ -113,18 +112,6 @@ class Profile extends Component {
             </Container>
         )
 
-        // Determine whether to show create post form or button to expand
-        var createPostForm =  this.state.createPostFormVisible ? (
-            <CreatePost toggleCreatePostForm={this.toggleCreatePostForm} />
-        ) :  null;
-
-        // button for toggling create post form, must be viewing profile of currently logged in user
-        var createPostButton = this.props.loadedProfile 
-        && !this.state.createPostFormVisible
-        && this.props.loadedProfile.username === this.props.profile.username ? (
-            <Button className="primary-button shadow-sm mr-2" onClick={this.toggleCreatePostForm}>Create Post</Button>
-        ) : null;
-
         // button for updating profile, must be viewing profile of currently logged in user
         var updateProfileButton = this.props.loadedProfile 
         && this.props.loadedProfile.username === this.props.profile.username ? (
@@ -147,7 +134,6 @@ class Profile extends Component {
                     <Card.Text>{this.props.loadedProfile.bio ? this.props.loadedProfile.bio : null}</Card.Text>
                     <div className="text-right">
                         {updateProfileButton}
-                        {createPostButton}
                     </div>
                 </Card.Body>
             </Card>
@@ -188,7 +174,6 @@ class Profile extends Component {
                             {profileCard}
                         </Col>
                     </Row>
-                    {createPostForm}
                 </Container>
                 <Feed userFeed={true} />
             </div>

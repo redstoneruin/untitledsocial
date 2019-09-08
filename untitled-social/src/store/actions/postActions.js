@@ -318,8 +318,13 @@ const contentDeleteSwitcher = (type, id) => {
 
             /** choose method based on type */
             switch(type) {
-                case "image":
-                    dispatch(deleteImage(id)).then(() => {return resolve()});
+                case "image" || "video":
+                    dispatch(deleteSingleFile(id))
+                        .then(() => {return resolve()})
+                        .catch(err => {
+                            console.log(err);
+                            return resolve(null);
+                        });
                     break;
                 default:
                     return resolve();
@@ -329,20 +334,17 @@ const contentDeleteSwitcher = (type, id) => {
 }
 
 /**
- * 
+ * Delete file from post with given id
  * @param {string} id - string of post to delete images
  */
-const deleteImage = (id) => {
-    return(dispatch, getStore, {getFirestore, getFirebase}) => {
+const deleteSingleFile = (id) => {
+    return(dispatch, getStore, {getFirebase}) => {
         return new Promise((resolve, reject) => {
-            console.log("Deleting image");
+            console.log("Deleting file");
             const storageRef = getFirebase().storage().ref();
             dispatch(getPostByID(id))
                 .then(post => {
-                    console.log("post:");
-                    console.log(post);
                     if(post === null) {
-                        console.log("post dne");
                         return reject({message: "Post does not exist"});
                     }
                     /** delete first image file attached to post, should always be 1 for this type */

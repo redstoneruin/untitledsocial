@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import {Redirect} from 'react-router-dom';
-import {Container, Row, Col, Card, Spinner} from 'react-bootstrap';
+import {Container, Row, Col, Card, Spinner, Button} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import PostSummary from '../posts/PostSummary';
+import CreatePost from './CreatePost';
 
 import {updateFeed, updateUserFeed} from '../../store/actions/postActions';
 
@@ -17,7 +18,8 @@ class Feed extends Component {
         super(props);
 
         this.state = {
-            feed: null
+            feed: null,
+            createPostFormVisible: false
         }
     }
 
@@ -88,7 +90,38 @@ class Feed extends Component {
         return mapping;
     }
 
+    toggleCreatePostForm = () => {
+        this.setState({
+            createPostFormVisible: !this.state.createPostFormVisible
+        });
+    }
+
     render() {
+        /** buttons visible when create post form is not */
+        var headerButtons = !this.state.createPostFormVisible ? (
+            <div className="text-right">
+                    <Button variant="secondary" className="mr-3">Create Topic</Button>
+                    <Button className="primary shadow-sm" onClick={this.toggleCreatePostForm}>Create Post</Button>
+            </div>
+        ) : null;
+
+        /** form for creating post, visible based on boolean in state */
+        var createPostForm = this.state.createPostFormVisible ? (
+            <CreatePost toggleCreatePostForm={this.toggleCreatePostForm} />
+        ) : null;
+
+        /** to be shown above all posts, guide for users */
+        var headerArea = (
+            <div>
+                <Row className="justify-content-center">
+                    <Col md={8} className="mb-4">
+                        {headerButtons}
+                        {createPostForm}
+                    </Col>
+                </Row>
+            </div>
+        );
+
         var feed = this.assembleFeed();
 
         // route guarding
@@ -96,6 +129,11 @@ class Feed extends Component {
 
         return (
             <Container className="pt-4">
+                <Row className="pt-4">
+                    <Col>
+                        {headerArea}
+                    </Col>
+                </Row>
                 <Row>
                     <Col>
                         {feed ? feed : (
