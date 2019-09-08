@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 
 import {connect} from 'react-redux';
-import {Row, Col, Card, Form, Button} from 'react-bootstrap';
+import {Row, Col, Card, Form, Button, Spinner} from 'react-bootstrap';
 
 import {getComments, addUserComment} from '../../store/actions/postActions';
 import {getUsernameFromUid} from '../../store/actions/authActions';
@@ -16,14 +16,14 @@ class Comments extends Component {
         this.state = {
             comment: "",
             comments: null,
-            commentFeed: null
+            commentFeed: null,
+            bufferingComments: true
         }
         this.getCommentData = this.getCommentData.bind(this);
     }
 
     componentDidMount = () => {
         this.getCommentData();
-        
     }
 
     /**
@@ -115,7 +115,7 @@ class Comments extends Component {
                 <Row>
                     <Col>
                         <Card className="secondary text-left">
-                            <Card.Body>No posts.</Card.Body>
+                            <Card.Body>No comments.</Card.Body>
                         </Card>
                     </Col>
                 </Row>
@@ -123,7 +123,8 @@ class Comments extends Component {
         }
 
         this.setState({
-            commentFeed
+            commentFeed,
+            bufferingComments: false
         });
     }
 
@@ -142,11 +143,26 @@ class Comments extends Component {
     postComment = (e) => {
         e.preventDefault();
 
-        this.props.addUserComment(this.props.postId, this.state.comment);
-        this.getCommentData();
+        this.setState({
+            bufferingComments: true
+        })
+
+        this.props.addUserComment(this.props.postId, this.state.comment)
+            .then(this.getCommentData());
     }
 
     render() {
+        var loadingSpinner = this.state.bufferingComments ? (
+            <Row className="mb-4">
+                <Col>
+                    <Card className="secondary">
+                        <Card.Body>
+                            <Spinner animation="border" variant="info" />
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
+        ) : null;
 
         /**
          * Displays add comment form, and feed for comments
@@ -173,6 +189,7 @@ class Comments extends Component {
                         <Button onClick={this.postComment}>Post</Button>
                     </Col>
                 </Row>
+                {loadingSpinner}
                 {this.state.commentFeed}
             </div>
         )

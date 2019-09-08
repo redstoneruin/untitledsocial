@@ -273,28 +273,32 @@ export const getPostByID = (id) => {
  */
 export const addUserComment = (postId, comment) => {
  return(dispatch, getStore, {getFirestore}) => {
-    const uid = getStore().firebase.auth.uid;
-    const db = getFirestore();
+    return new Promise((resolve, reject) => {
+        const uid = getStore().firebase.auth.uid;
+        const db = getFirestore();
+        
+        var commentObject = {
+            comment,
+            uid,
+            likeCount: 0,
+            time: new Date()
+        }
+
+        dispatch(getPostPathByID(postId))
+            .then(path => {
+                const commentCollection = db.doc(path).collection("comments");
+                
+                commentCollection.add(commentObject)
+                    .then(callback => {
+                        /** attach assigned id to comment */
+                        commentObject.id = callback.id
+
+                        commentCollection.doc(callback.id).set(commentObject);
+                        return resolve();
+                    });
+            });
+    });
     
-    var commentObject = {
-        comment,
-        uid,
-        likeCount: 0,
-        time: new Date()
-    }
-
-    dispatch(getPostPathByID(postId))
-        .then(path => {
-            const commentCollection = db.doc(path).collection("comments");
-            
-            commentCollection.add(commentObject)
-                .then(callback => {
-                    /** attach assigned id to comment */
-                    commentObject.id = callback.id
-
-                    commentCollection.doc(callback.id).set(commentObject);
-                })
-        });
     
  }
 }
@@ -318,7 +322,6 @@ export const getComments = (postId) => {
                     /** get collection of comments */
                     db.doc(path).collection("comments").orderBy("time", "desc").get()
                         .then(callback => {
-                            console.log(callback);
                             if(callback.empty) {
                                 return resolve(null);
                             }
