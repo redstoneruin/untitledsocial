@@ -90,6 +90,9 @@ class Feed extends Component {
         return mapping;
     }
 
+    /**
+     * Toggle visible state of post form
+     */
     toggleCreatePostForm = () => {
         this.setState({
             createPostFormVisible: !this.state.createPostFormVisible

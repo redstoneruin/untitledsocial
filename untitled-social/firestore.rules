@@ -6,6 +6,9 @@ service cloud.firestore {
     }
   	match /users/{user} {
     	match /posts/{post} {
+        match /comments/{comment} {
+          allow write: if request.auth.uid != null;
+        }
       	allow read: if request.auth.uid != null;
       	allow write: if request.auth.uid == user;
       }

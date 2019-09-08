@@ -19,6 +19,9 @@ export const createUserPost = (post, files) => {
                 
                 // Tag post with id
                 post.id = postId;
+                post.likeCount = 0;
+                post.commentCount = 0;
+
                 userPostCollection.doc(postId).update(post);
                 // create new postSnap with post info
                 dispatch(createPostSnap(uid, postId, path));
@@ -260,6 +263,96 @@ export const getPostByID = (id) => {
                     return resolve(null);
                 })
         })
+    }
+}
+
+/**
+ * Adds comment from current user to post at given id
+ * @param {string} postId - Id of post to attach comment to
+ * @param {string} comment - comment to attach to post
+ */
+export const addUserComment = (postId, comment) => {
+ return(dispatch, getStore, {getFirestore}) => {
+    const uid = getStore().firebase.auth.uid;
+    const db = getFirestore();
+    
+    var commentObject = {
+        comment,
+        uid,
+        likeCount: 0,
+        time: new Date()
+    }
+
+    dispatch(getPostPathByID(postId))
+        .then(path => {
+            const commentCollection = db.doc(path).collection("comments");
+            
+            commentCollection.add(commentObject)
+                .then(callback => {
+                    /** attach assigned id to comment */
+                    commentObject.id = callback.id
+
+                    commentCollection.doc(callback.id).set(commentObject);
+                })
+        });
+    
+ }
+}
+
+/**
+ * Get all comments in array form from
+ * @param {returns all comments attached to post} postId 
+ */
+export const getComments = (postId) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        return new Promise((resolve, reject) => {
+            const db = getFirestore();
+
+            // get path post, then add comment with reference
+            dispatch(getPostPathByID(postId))
+                .then(path => {
+                    if(!path) {
+                        return resolve(null);
+                    }
+
+                    /** get collection of comments */
+                    db.doc(path).collection("comments").orderBy("time", "desc").get()
+                        .then(callback => {
+                            console.log(callback);
+                            if(callback.empty) {
+                                return resolve(null);
+                            }
+                            /** if docs exist, build into array with map */
+                            return resolve(callback.docs.map(doc => doc.data()));
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+                });
+        });
+    }
+}
+
+/**
+ * Returns string path to post in firestore when given post id
+ * @param {string} id - Post's id
+ */
+const getPostPathByID = (id) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        return new Promise((resolve, reject) => {
+            const db = getFirestore();
+
+            /** find post from querying post snapshots */
+            db.collection("posts").where("postId", "==", id).get()
+                .then(callback => {
+                    if(callback.empty) {
+                        return resolve(null);
+                    }
+
+                    return resolve(callback.docs[0].data().path);
+                });
+        });
+        
     }
 }
 

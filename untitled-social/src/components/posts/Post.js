@@ -6,6 +6,8 @@ import {Container, Row, Col, Card, Spinner, Button} from 'react-bootstrap';
 import {getPostByID, getSingleFileURLFromPostId, deletePost} from '../../store/actions/postActions';
 import {getUsernameFromUid} from '../../store/actions/authActions';
 
+import Comments from './Comments';
+
 import '../../styles/ColorScheme.css';
 
 /**
@@ -131,6 +133,10 @@ class Post extends Component {
             </Card>
         );
 
+        var comments = this.state.post ? (
+            <Comments postId={this.state.post.id} />
+        ) : null;
+
         return (
             <Container>
                 <Row>
@@ -138,6 +144,7 @@ class Post extends Component {
                         {postCard}
                     </Col>
                 </Row>
+                {comments}
             </Container>
         )
     }
