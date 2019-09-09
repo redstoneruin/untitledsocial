@@ -127,6 +127,46 @@ export const validateDesc = (desc) => {
 }
 
 /**
+ * Validate content field, usually checks if valid link
+ * @param {string} content 
+ */
+export const validateContent = (content) => {
+    const linkPattern = new RegExp(/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gm);
+
+    var valid = {};
+
+    if(!content) {
+        valid.content = true;
+        valid.contentMessage = null;
+    } else if(content.length > 500) {
+        valid.content = false;
+        valid.contentMessage = "Content too long.";
+    } else if(linkPattern.test(content)){
+        valid.content = true;
+        valid.contentMessage = null;
+    } else {
+        valid.content = false;
+        valid.contentMessage = "Not a valid link.";
+    }
+
+    return valid;
+}
+
+/**
+ * Returns link in correct format for routing
+ */
+export const getValidLink = (link) => {
+    /** regular expression for whether http / https exists at beginning of link string */
+    var https = new RegExp(/https?:\/\//gm);
+
+    if(https.test(link)) {
+        return link;
+    }
+
+    return "http://" + link;
+}
+
+/**
  * Get type of post based on fields of post param and included files
  * @param {Object} post - Post to validate type 
  * @param {*} files - Files intented for upload

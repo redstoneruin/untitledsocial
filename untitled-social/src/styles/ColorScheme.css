@@ -23,6 +23,12 @@
     color: black;
 }
 
+.secondary-accent {
+    background-color: #dfe1e9;
+    border-color: #dfe1e9;
+    color: black;
+}
+
 .tertiary {
     background-color: #9bb2be;
     border-color: #9bb2be;

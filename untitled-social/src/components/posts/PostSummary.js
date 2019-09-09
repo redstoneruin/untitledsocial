@@ -1,10 +1,12 @@
 import React, {Component} from 'react';
 import {Redirect} from 'react-router-dom';
-import {Card, Spinner, Row, Col, Image} from 'react-bootstrap';
+import {Card, Spinner, Row, Col, Image, ListGroup} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import {getUsernameFromUid} from '../../store/actions/authActions';
 import {getSingleFileURLFromPostId} from '../../store/actions/postActions';
+import {getValidLink} from '../../shared/validation'; 
+
 
 import '../../styles/ColorScheme.css'
 
@@ -88,16 +90,25 @@ class PostSummary extends Component {
             <Row className="justify-content-center">
                 <Spinner animation="border" variant="info" />
             </Row>
-        ) : null
+        ) : null;
+
+        var link = this.props.post.type === "link" ? (
+            // link to display if exists
+            <Card variant="flush" className="secondary-accent shadow-sm mb-3 mt-3">
+                <Card.Body>
+                    <a rel="noopener noreferrer" target = "_blank" href={getValidLink(this.props.post.content)}>{this.props.post.content}</a>
+                </Card.Body>
+            </Card>
+        ) : null;
 
         // redirect to this post to individual post page
         if(this.state.redirect) return <Redirect to={"/post/" + this.props.post.id} />
 
         return(
             <Card style={{cursor: "pointer"}} onClick={this.handleClick} className="shadow-sm secondary mb-4 selection-hover-fade text-left">
-                
                 <Card.Body className="text-left">
                     <Card.Title>{this.props.post.title}</Card.Title>
+                    {link}
                     <Card.Text>{this.props.post.desc}</Card.Text>
                     {filesLoadingSpinner}
                 </Card.Body>

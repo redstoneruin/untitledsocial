@@ -5,7 +5,7 @@ import React, {Component} from 'react';
 import {Card, Form, Button} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
-import {validateTitle, validateDesc, getPostType} from '../../shared/validation';
+import {validateTitle, validateDesc, validateContent, getPostType} from '../../shared/validation';
 import {createUserPost} from '../../store/actions/postActions';
 
 class CreatePost extends Component {
@@ -62,7 +62,7 @@ class CreatePost extends Component {
             // TODO: Dummy data, separate into function
             //
             post.time = new Date();
-            post.content = "";
+            if(!post.content) post.content = "";
             post.topic = "";
 
             // get post type based on state
@@ -103,10 +103,11 @@ class CreatePost extends Component {
         // validate form components
         var validTitle = validateTitle(this.state.post.title);
         var validDesc = validateDesc(this.state.post.desc);
+        var validContent = validateContent(this.state.post.content);
 
         // combine validated components
-        var valid = Object.assign(validTitle, validDesc);
-        var validated = valid.title && valid.desc;
+        var valid = Object.assign(validTitle, validDesc, validContent);
+        var validated = valid.title && valid.desc && valid.content;
 
         
 
@@ -145,6 +146,18 @@ class CreatePost extends Component {
                                 type="file"
                                 id="files">
                             </Form.Control>
+                        </Form.Group>
+
+                        <Form.Group>
+                            <Form.Label>Link</Form.Label>
+                            <Form.Control
+                            onChange={this.handleChange}
+                            type="text"
+                            id="content"
+                            isValid={this.state.valid.content}
+                            isInvalid={this.state.submitted && !this.state.valid.content}>   
+                            </Form.Control>
+                            <Form.Control.Feedback type="invalid">{this.state.valid.contentMessage}</Form.Control.Feedback>
                         </Form.Group>
 
                         <Form.Group>

@@ -1,5 +1,5 @@
 import {validateUsername, validateBio, validateEmail, validatePassword,
-        validateTitle, validateDesc} from './validation';
+        validateTitle, validateDesc, validateContent, getValidLink} from './validation';
 
 /**
  * Username validation tests
@@ -191,3 +191,27 @@ describe('description validation', () => {
         .toEqual({desc: false, descMessage: "Description over 1000 character limit."});
     });
 });
+
+/**
+ * Validation for links in content field
+ */
+describe('content validation', () => {
+    test('validate link format', () => {
+        expect(validateContent("https://google.com"))
+            .toEqual({content: true, contentMessage: null});
+
+        expect(validateContent("ayy.lmao."))
+            .toEqual({content: false, contentMessage: "Not a valid link."});
+    });
+
+    test('test getValidLink with http handlers', () => {
+        expect(getValidLink("www.google.com"))
+            .toEqual("http://www.google.com");
+
+        expect(getValidLink("https://google.com"))
+            .toEqual("https://google.com");
+
+        expect(getValidLink("http://google.com"))
+            .toEqual("http://google.com");
+    });
+})

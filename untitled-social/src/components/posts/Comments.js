@@ -99,7 +99,7 @@ class Comments extends Component {
                  * Format for comments
                  */
                 commentFeed.push(
-                    <Row key={comment.id} className="pb-4">
+                    <Row key={i} className="pb-4">
                         <Col>
                             <Card className="secondary text-left">
                                 <Card.Body>{comment.comment}</Card.Body>
