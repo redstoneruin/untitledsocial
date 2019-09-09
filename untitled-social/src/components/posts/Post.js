@@ -5,6 +5,7 @@ import {Container, Row, Col, Card, Spinner, Button} from 'react-bootstrap';
 
 import {getPostByID, getSingleFileURLFromPostId, deletePost} from '../../store/actions/postActions';
 import {getUsernameFromUid} from '../../store/actions/authActions';
+import {getValidLink} from '../../shared/validation';
 
 import Comments from './Comments';
 
@@ -105,18 +106,31 @@ class Post extends Component {
             </Row>
         ) : null;
         
+        var link = this.state.post && this.state.post.content ? (
+            // link to display if exists
+            <Card variant="flush" className="secondary-accent shadow-sm mb-4 mt-2">
+                <Card.Body>
+                    <a rel="noopener noreferrer" target = "_blank" href={getValidLink(this.state.post.content)}>{this.state.post.content}</a>
+                </Card.Body>
+            </Card>
+        ) : null;
+
+
         var postCard = this.state.post ? (
             <Card className="secondary shadow-sm mt-4 text-left">
                 <Card.Header>
                     <Card.Title className="mb-0">{this.state.post.title}</Card.Title>
                 </Card.Header>
+
                 { image }
+                
                 <Card.Body>
+                    {link}
                     <Row>
                         <Col>
                             {this.state.post.desc}
                         </Col>
-                    </Row>  
+                    </Row> 
                     
                     {deleteButton}
 
