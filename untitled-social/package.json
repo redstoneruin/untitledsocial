@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "bootstrap": "^4.3.1",
+    "eslint-utils": "^1.4.2",
     "firebase": "^6.3.3",
     "jsdoc": "^3.6.3",
     "react": "^16.8.6",
@@ -15,8 +16,7 @@
     "react-scripts": "3.0.1",
     "redux": "^4.0.4",
     "redux-firestore": "^0.8.0",
-    "redux-thunk": "^2.3.0",
-    "eslint-utils": ">=1.4.1"
+    "redux-thunk": "^2.3.0"
   },
   "scripts": {
     "start": "react-scripts start",

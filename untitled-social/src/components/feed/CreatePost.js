@@ -2,11 +2,13 @@
  * Form for creating new post for a user
  */
 import React, {Component} from 'react';
-import {Card, Form, Button} from 'react-bootstrap';
+import {Card, Form, Button, Row, Col} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import {validateTitle, validateDesc, validateContent, getPostType} from '../../shared/validation';
 import {createUserPost} from '../../store/actions/postActions';
+
+import '../../styles/App.css';
 
 class CreatePost extends Component {
     constructor(props) {
@@ -118,7 +120,29 @@ class CreatePost extends Component {
 
     }
 
+    /**
+     * Get string for file names based off state info
+     */
+    getFileNamesString = () => {
+        if(!this.state.files) {
+            return "Upload";
+        }
+
+        var returnString;
+        for(var i = 0; i < this.state.files.length; i++) {
+            if(i < this.state.files.length - 1) {
+                returnString += this.state.files[i].name + ", ";
+            } else {
+                returnString += this.state.files[i].name;
+            }
+        }
+
+        return returnString;
+    }
+
     render() {
+        var filenames = this.getFileNamesString();
+
         return (
             <Card className="shadow-sm secondary">
                 <Card.Body className="text-left">
@@ -138,14 +162,20 @@ class CreatePost extends Component {
                             <Form.Control.Feedback type="invalid">{this.state.valid.titleMessage}</Form.Control.Feedback>
                         </Form.Group>
 
-                        <Form.Group>
+                        <Form.Group className="justify-content-right">
                             <Form.Label>Files</Form.Label>
                             <Form.Label className="text-muted pl-1">(optional)</Form.Label>
-                            <Form.Control
-                                onChange={this.handleFile}
-                                type="file"
-                                id="files">
-                            </Form.Control>
+                            <Card className="file-upload">
+                                <Form.Control
+                                    onChange={this.handleFile}
+                                    type="file"
+                                    id="files"
+                                    className="custom-file-input file-upload"
+                                    aria-describedby="filebutton"
+                                    accept="image/jpeg, image/png">
+                                </Form.Control>
+                                <Form.Label htmlFor="files" className="custom-file-label">{filenames}</Form.Label>
+                            </Card>
                         </Form.Group>
 
                         <Form.Group>

@@ -108,7 +108,7 @@ class Post extends Component {
         
         var link = this.state.post && this.state.post.content ? (
             // link to display if exists
-            <Card variant="flush" className="secondary-accent shadow-sm mb-4 mt-2">
+            <Card variant="flush" className="secondary-accent shadow-sm mb-4 mt-1">
                 <Card.Body>
                     <a rel="noopener noreferrer" target = "_blank" href={getValidLink(this.state.post.content)}>{this.state.post.content}</a>
                 </Card.Body>

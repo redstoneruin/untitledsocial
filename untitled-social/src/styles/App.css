@@ -67,3 +67,7 @@
     transform: rotate(360deg);
   }
 }
+
+.file-upload {
+  border-width: 0px;
+} 
