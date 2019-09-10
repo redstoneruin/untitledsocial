@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Redirect} from 'react-router-dom';
-import {Card, Spinner, Row, Col, Image, ListGroup} from 'react-bootstrap';
+import {Card, Spinner, Row, Col, Image} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import {getUsernameFromUid} from '../../store/actions/authActions';

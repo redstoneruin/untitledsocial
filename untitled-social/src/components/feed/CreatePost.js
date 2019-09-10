@@ -2,7 +2,7 @@
  * Form for creating new post for a user
  */
 import React, {Component} from 'react';
-import {Card, Form, Button, Row, Col} from 'react-bootstrap';
+import {Card, Form, Button} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import {validateTitle, validateDesc, validateContent, getPostType} from '../../shared/validation';

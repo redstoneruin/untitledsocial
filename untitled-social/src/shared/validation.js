@@ -189,7 +189,7 @@ export const getPostType = (post, files) => {
         } else {
             var fileType = files[0].type;
             // single file, determine whether image or video
-            if(fileType === "image/gif" || fileType === "image/jpeg" || fileType === "image/webp"
+            if(fileType === "image/gif" || fileType === "image/png" || fileType === "image/jpeg" || fileType === "image/webp"
             || fileType === "image/svg+xml") {
                 return "image";
             } else {
