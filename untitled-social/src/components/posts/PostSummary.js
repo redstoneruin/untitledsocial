@@ -33,6 +33,12 @@ class PostSummary extends Component {
         }
     }
 
+    componentDidUpdate = (prevProps) => {
+        if(prevProps.post.time !== this.props.post.time) {
+            this.getStateData();
+        }
+    }
+
     /**
      * Get username of poster and date string
      */
@@ -65,9 +71,11 @@ class PostSummary extends Component {
                     this.setState({
                         files
                     });
-                })
+                });
         }
     }
+
+    compo
 
     /**
      * Handle click and redirect to 

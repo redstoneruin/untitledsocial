@@ -133,38 +133,64 @@ export const updateFeed = () => {
     return(dispatch, getStore, {getFirestore}) => {
         const db = getFirestore();
         // get postSnap collection
-        db.collection("posts").orderBy("time").get()
+        db.collection("posts").orderBy("time", "desc").get()
             .then(snapshot => {
-                // create feed array to return
-                var feed = [];
-                var snapIndex = 0;
-
                 // loop through post snapshots to build post array
                 // using forEach to avoid functions in loops
                 snapshot.forEach((postSnap) => {
                     postSnap = postSnap.data();
 
-                    // get post represented by postSnap
-                    dispatch(getPost(postSnap.path))
-                        .then(post => {
-                            // set id field for post
-                            post.id = postSnap.postId;
-                            // append post to feed
-                            feed = [post, ...feed];
+                    /** check if current user has permission to acces post */
+                    dispatch(currentUserHasPermissions(postSnap))
+                        .then(userHasPerms => {
+                            if(userHasPerms) {
+                                // get post represented by postSnap
+                                dispatch(getPost(postSnap.path))
+                                    .then(post => {
+                                        var feed = getStore().posts.feed;
+                                        // set id field for post
+                                        post.id = postSnap.postId;
+                                        // append post to feed
+                                        feed = [...feed, post];
 
-                            // if last post in array, dispatch success
-                            snapIndex++;
-                            if(snapIndex === snapshot.docs.length) {
-                                // feed built, add to store
-                                dispatch({type: 'FEED_UPDATE', feed});
+                                        // update feed
+                                        dispatch({type: 'FEED_UPDATE', feed});
+                                    })
+                                    // catch errors from getPost function
+                                    .catch(err => dispatch({type: 'FEED_UPDATE_ERR', err}));
                             }
-                        })
-                        // catch errors from getPost function
-                        .catch(err => dispatch({type: 'FEED_UPDATE_ERR', err}));
+
+                        });
+
+                    
                 });
             })
             // catch errors assoc. with getting postSnap collection data
             .catch(err => dispatch({type: 'FEED_UPDATE_ERR', err}));
+    }
+}
+
+/**
+ * Resolves with boolean of whether user has access to this post
+ * @param {Object} postSnap - postSnap object of post to access
+ */
+const currentUserHasPermissions = (postSnap) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        return new Promise((resolve, reject) => {
+            const db = getFirestore();
+
+            const auth = getStore().firebase.auth;
+
+            /** If author of post, has permission to view */
+            if(auth.uid === postSnap.uid) {
+                return resolve(true);
+            }
+
+            /**
+             * TODO: resolve to false by default, create cases for permission
+             */
+            return resolve(true);
+        });
     }
 }
 
@@ -220,7 +246,6 @@ export const updateUserFeed = (username) => {
                             post.id = snapshot.docs[i].id;
                             userFeed = [post, ...userFeed];
                         }
-
                         dispatch({type: 'USER_FEED_UPDATE', userFeed});
                     })
                     // catch errors assoc. with getting user's posts collection

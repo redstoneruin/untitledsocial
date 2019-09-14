@@ -3,7 +3,7 @@ import {Redirect} from 'react-router-dom';
 import {Container, Card, Spinner, Row, Col, Button, Image} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
-import {getProfileByUsername, getAvatarURLFromUsername} from '../../store/actions/authActions';
+import {getProfileByUsername, getAvatarURLFromUsername, followUser, unfollowUser, checkIfFollower} from '../../store/actions/authActions';
 import {updateUserFeed} from '../../store/actions/postActions';
 
 import ProfileUpdateForm from './ProfileUpdateForm';
@@ -23,7 +23,9 @@ class Profile extends Component {
             route: props.match.params.id,
             updateFormVisible: false,
             createPostFormVisible: false,
-            profilePicURL: null
+            profilePicURL: null,
+            isFollower: false,
+            checkedIfFollowing: false
         }
     }
 
@@ -41,19 +43,33 @@ class Profile extends Component {
         this.props.getProfileByUsername(this.props.match.params.id);
 
         this.props.getAvatarURLFromUsername(this.props.match.params.id)
-        .then(url => {
-            // if url exists, change Image src property
-            if(url) {
-                this.setState({
-                    profilePicURL: url
-                })
-            }
-        })
-        .catch(err => {
-            console.log(err);
-        });
+            .then(url => {
+                // if url exists, change Image src property
+                if(url) {
+                    this.setState({
+                        profilePicURL: url
+                    })
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            });
 
         this.props.updateUserFeed(this.props.match.params.id);
+    }
+
+    /**
+     * Check if current user if follower
+     */
+    checkIfFollower = (uid) => {
+        this.props.checkIfFollower(uid)
+            .then(isFollower => {
+                this.setState({
+                    isFollower,
+                    checkedIfFollowing: true
+                });
+                }
+            );
     }
 
     /**
@@ -92,8 +108,36 @@ class Profile extends Component {
         })
     }
 
+    /**
+     * Handler for user clicking follow button
+     */
+    handleFollow = () => {
+        /** Use function to follow user */
+        this.props.followUser(this.props.loadedProfile.uid)
+            .then(isFollower => {
+                this.setState({
+                    isFollower,
+                    checkedIfFollowing: true
+                });
+            });
+    }
+
+    handleUnfollow = () => {
+        this.props.unfollowUser(this.props.loadedProfile.uid)
+            .then(this.setState({
+                isFollower: false,
+                checkedIfFollowing: true
+            }));
+    }
+
     
     render() {
+        /**
+         * Check if logged in user is following this user
+         */
+        if(this.props.loadedProfile && !this.state.checkedIfFollowing) {
+            this.checkIfFollower(this.props.loadedProfile.uid);
+        }
 
         /**
          * Loading screen visible before profile information loaded
@@ -118,6 +162,18 @@ class Profile extends Component {
             <Button variant="info" className="mr-2 shadow-sm" onClick={this.toggleProfileUpdate}>Update Profile</Button>
         ) : null;
 
+        /** Button for other users to follow this account */
+        var followButton = this.props.loadedProfile
+        /** loaded profile must not be currently logged in user */
+        && this.props.loadedProfile.uid !== this.props.auth.uid ? (
+            /** decide between follow and unfollow button */
+            this.state.isFollower ? (
+                <Button variant="danger" className="mr-2 shadow-sm" onClick={this.handleUnfollow}>Unfollow</Button>
+            ) : (
+                <Button variant="info" className="mr-2 shadow-sm" onClick={this.handleFollow}>Follow</Button>
+            )
+        ) : null;
+
         // Profile card visible to user, either profile or update form
         var profileCard = this.props.loadedProfile && !this.state.updateFormVisible ? (
             <Card className="shadow secondary">
@@ -134,6 +190,7 @@ class Profile extends Component {
                     <Card.Text>{this.props.loadedProfile.bio ? this.props.loadedProfile.bio : null}</Card.Text>
                     <div className="text-right">
                         {updateProfileButton}
+                        {followButton}
                     </div>
                 </Card.Body>
             </Card>
@@ -194,7 +251,10 @@ const mapDispatchToProps = (dispatch) => {
     return {
         getProfileByUsername: (username) => dispatch(getProfileByUsername(username)),
         updateUserFeed: (username) => dispatch(updateUserFeed(username)),
-        getAvatarURLFromUsername: (username) => dispatch(getAvatarURLFromUsername(username))
+        getAvatarURLFromUsername: (username) => dispatch(getAvatarURLFromUsername(username)),
+        followUser: (uid) => dispatch(followUser(uid)),
+        unfollowUser: (uid) => dispatch(unfollowUser(uid)),
+        checkIfFollower: (uid) => dispatch(checkIfFollower(uid))
     }
 }
 

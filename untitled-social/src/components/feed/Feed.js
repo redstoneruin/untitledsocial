@@ -18,8 +18,9 @@ class Feed extends Component {
         super(props);
 
         this.state = {
-            feed: null,
-            createPostFormVisible: false
+            feed: [],
+            createPostFormVisible: false,
+            isMounted: false
         }
     }
 
@@ -33,19 +34,26 @@ class Feed extends Component {
             } else {
                 this.props.updateFeed();
             }
+            this.setState({isMounted: true});
         }
     }
+
+    componentWillUnmount = () => {
+        this.setState({isMounted: false});
+    }
+
 
     /**
      * build feed jsx for user from data in store
      */
     assembleFeed = () => {
+        var feed;
 
         // Check that posts exist
-        if((!this.props.userFeed && !this.props.posts.feed)
+        if((!this.props.userFeed && (this.props.posts.feed.length === 0))
             || (this.props.userFeed && !this.props.posts.userFeed)) {
-            return  (
-                <Row className="justify-content-center">
+            feed = [
+                <Row key={0} className="justify-content-center">
                     <Col md={8}>
                         <Card className="secondary shadow-sm">
                             <Card.Body>
@@ -54,16 +62,21 @@ class Feed extends Component {
                         </Card>
                     </Col>
                 </Row>
-            );
+            ];
+            this.setState({
+                feed
+            });
+            return;
         }
 
         // determine if feed is for profile or feed page
-        var feed;
+        
         if(this.props.userFeed) {
             feed = this.props.posts.userFeed;
         } else {
             feed = this.props.posts.feed;
         }
+
         var feedLength = feed.length;
         
         // return null if empty
@@ -87,7 +100,19 @@ class Feed extends Component {
             )
         }
 
-        return mapping;
+        this.setState({
+            feed: mapping
+        });
+    }
+
+    componentDidUpdate = () => {
+        if(!this.state.isMounted) {
+            return;
+        }
+
+        if(!this.props.userFeed && this.props.posts.feed.length !== this.state.feed.length) this.assembleFeed()
+        else if(this.props.userFeed && this.props.posts.userFeed && 
+            this.props.posts.userFeed.length !== this.state.feed.length) this.assembleFeed();
     }
 
     /**
@@ -125,8 +150,6 @@ class Feed extends Component {
             </div>
         );
 
-        var feed = this.assembleFeed();
-
         // route guarding
         if(!this.props.auth.uid) return <Redirect to="/" />
 
@@ -139,7 +162,7 @@ class Feed extends Component {
                 </Row>
                 <Row>
                     <Col>
-                        {feed ? feed : (
+                        {this.state.feed ? this.state.feed : (
                             <Row className="justify-content-center">
                                 <Col md={8}>
                                     <Card className="shadow-sm secondary">

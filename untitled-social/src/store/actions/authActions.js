@@ -21,7 +21,8 @@ export const signUp = (newUser) => {
                             console.log(response);
                             db.collection('users').doc(response.user.uid).set({
                                 username: newUser.username,
-                                joinTime: new Date()
+                                joinTime: new Date(),
+                                uid: response.user.uid
                             })
                                 // signup successful
                                 .then(dispatch({type: 'SIGNUP_SUCCESS'}))
@@ -267,5 +268,83 @@ export const getUsernameFromUid = (uid) => {
 export const clearProfileUpdateError = () => {
     return (dispatch) => {
         dispatch({ type: 'PROFILE_UPDATE_SUCCESS' });
+    }
+}
+
+/**
+ * Add the current user as a follow of user at given uid
+ * @param {string} uid - User to follow's user id
+ */
+export const followUser = (uid) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        return new Promise(resolve => {
+            const db = getFirestore();
+            const auth = getStore().firebase.auth;
+            /** Check if user already follows this user */
+            dispatch(checkIfFollower(uid))
+                .then(isFollowing => {
+                    if(!isFollowing) {
+                        // not following, add to follower list of both users
+                        db.doc("users/" + uid + "/followers/" + auth.uid).set({
+                            uid: auth.uid,
+                            time: new Date()
+                        });
+
+                        db.doc("users/" + auth.uid + "/following/" + uid).set({
+                            uid,
+                            time: new Date()
+                        })
+                        
+                        return resolve(true);
+                    }
+
+                    return resolve(false);
+                });
+        });
+    }
+}
+
+/**
+ * Unfollow user at given uid from currently logged in user
+ * @param {string} uid - User's id to unfollow 
+ */
+export const unfollowUser = (uid) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        return new Promise(resolve => {
+            const db = getFirestore();
+            const auth = getStore().firebase.auth;
+
+            /** Delete following documents */
+            db.doc("users/" + auth.uid + "/following/" + uid).delete();
+            db.doc("users/" + uid + "/followers/" + auth.uid).delete();
+
+            return resolve(true);
+        });
+    }
+}
+
+/**
+ * Promise resolve with boolean value of whether user if following the user at given uid
+ * @param {string} uid - User to follow uid 
+ */
+export const checkIfFollower = (uid) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        return new Promise(resolve => {
+            const db = getFirestore();
+            const auth = getStore().firebase.auth;
+
+            /** check if logged in user is following user at uid */
+            db.collection("users").doc(auth.uid).collection("following").doc(uid).get()
+                .then(doc => {
+                    /** if doc already exists, user is following */
+                    if(doc.exists) {
+                        return resolve(true);
+                    }
+                    return resolve(false);
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        });
     }
 }

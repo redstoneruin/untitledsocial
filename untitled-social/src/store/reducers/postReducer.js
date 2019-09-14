@@ -2,7 +2,7 @@
  * Initial state of posts store
  */
 const initState = {
-    feed: null,
+    feed: [],
     userFeed: null,
     userPostError: null,
     postSnapError: null,
