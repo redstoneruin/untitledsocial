@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Redirect} from 'react-router-dom';
+import {Redirect, Link} from 'react-router-dom';
 import {connect} from 'react-redux';
 import {Container, Row, Col, Card, Spinner, Button} from 'react-bootstrap';
 
@@ -136,7 +136,7 @@ class Post extends Component {
 
                 </Card.Body>
                 <Card.Footer>
-                    by {this.state.username} on {this.state.dateString}
+                by <Link to={"/user/" + this.state.username}>{this.state.username}</Link> on {this.state.dateString}
                 </Card.Footer>
             </Card>
         ) : (

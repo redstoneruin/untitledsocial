@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Redirect} from 'react-router-dom';
+import {Redirect, Link} from 'react-router-dom';
 import {Card, Spinner, Row, Col, Image} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
@@ -122,7 +122,7 @@ class PostSummary extends Component {
                 </Card.Body>
                 {image}
                 <Card.Footer className="text-muted">
-                    {"by " + this.state.username + " on " + this.state.dateString}
+                    by <Link to={"/user/" + this.state.username}>{this.state.username}</Link> on {this.state.dateString}
                 </Card.Footer>
             </Card>
         )
