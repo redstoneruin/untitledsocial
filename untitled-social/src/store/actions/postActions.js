@@ -1,4 +1,4 @@
-import {getUidFromUsername} from './authActions';
+import {getUidFromUsername, checkIfFollower} from './authActions';
 
 /**
  * Create new post for current user
@@ -134,27 +134,23 @@ export const updateFeed = () => {
         const db = getFirestore();
         // get postSnap collection
         db.collection("posts").orderBy("time", "desc").get()
-            .then(snapshot => {
+            .then(async (snapshot) => {
                 // loop through post snapshots to build post array
                 // using forEach to avoid functions in loops
-                snapshot.forEach((postSnap) => {
-                    postSnap = postSnap.data();
+                for(var i = 0; i < snapshot.docs.length; i++) {
+                    var postSnap = snapshot.docs[i].data();
 
                     /** check if current user has permission to acces post */
-                    dispatch(currentUserHasPermissions(postSnap))
-                        .then(userHasPerms => {
+                    await dispatch(currentUserHasPermissions(postSnap))
+                        .then(async(userHasPerms) => {
                             if(userHasPerms) {
                                 // get post represented by postSnap
-                                dispatch(getPost(postSnap.path))
+                                await dispatch(getPost(postSnap.path))
                                     .then(post => {
-                                        var feed = getStore().posts.feed;
                                         // set id field for post
                                         post.id = postSnap.postId;
-                                        // append post to feed
-                                        feed = [...feed, post];
-
                                         // update feed
-                                        dispatch({type: 'FEED_UPDATE', feed});
+                                        dispatch({type: 'ADD_POST_TO_FEED', post});
                                     })
                                     // catch errors from getPost function
                                     .catch(err => dispatch({type: 'FEED_UPDATE_ERR', err}));
@@ -163,7 +159,7 @@ export const updateFeed = () => {
                         });
 
                     
-                });
+                }
             })
             // catch errors assoc. with getting postSnap collection data
             .catch(err => dispatch({type: 'FEED_UPDATE_ERR', err}));
@@ -186,10 +182,14 @@ const currentUserHasPermissions = (postSnap) => {
                 return resolve(true);
             }
 
-            /**
-             * TODO: resolve to false by default, create cases for permission
-             */
-            return resolve(true);
+            dispatch(checkIfFollower(postSnap.uid))
+                .then(isFollowing => {
+                    if(isFollowing) {
+                        return resolve(true);
+                    }
+
+                    return resolve(false);
+                });
         });
     }
 }

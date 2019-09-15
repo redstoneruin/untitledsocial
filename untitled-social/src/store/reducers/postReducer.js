@@ -75,6 +75,13 @@ const postReducer = (state = initState, action) => {
                 userFeedError: action.err.message
             }
 
+        case 'ADD_POST_TO_FEED':
+            return {
+                ...state,
+                feed: [...state.feed, action.post],
+                feedUpdateError: null
+            }
+
         default:
             return state;
     }
