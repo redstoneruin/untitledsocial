@@ -141,23 +141,7 @@ export const updateFeed = () => {
                     var postSnap = snapshot.docs[i].data();
 
                     /** check if current user has permission to acces post */
-                    await dispatch(currentUserHasPermissions(postSnap))
-                        .then(async(userHasPerms) => {
-                            if(userHasPerms) {
-                                // get post represented by postSnap
-                                await dispatch(getPost(postSnap.path))
-                                    .then(post => {
-                                        // set id field for post
-                                        post.id = postSnap.postId;
-                                        // update feed
-                                        dispatch({type: 'ADD_POST_TO_FEED', post});
-                                    })
-                                    // catch errors from getPost function
-                                    .catch(err => dispatch({type: 'FEED_UPDATE_ERR', err}));
-                            }
-
-                        });
-
+                    await addPostSnapToFeedWithPerms(dispatch, postSnap);
                     
                 }
             })
@@ -167,13 +151,36 @@ export const updateFeed = () => {
 }
 
 /**
+ * Take postSnap and add to end of user's content feed
+ * @param {function} dispatch - dispatch function for calling independently
+ * @param {Object} postSnap - Post snap object linking to post to add 
+ */
+const addPostSnapToFeedWithPerms = async(dispatch, postSnap) => {
+    await dispatch(currentUserHasPermissions(postSnap))
+        .then((userHasPerms) => {
+            if (userHasPerms) {
+                // get post represented by postSnap
+                dispatch(getPost(postSnap.path))
+                    .then(post => {
+                        // set id field for post
+                        post.id = postSnap.postId;
+                        // update feed
+                        dispatch({ type: 'ADD_POST_TO_FEED', post });
+                    })
+                    // catch errors from getPost function
+                    .catch(err => dispatch({ type: 'FEED_UPDATE_ERR', err }));
+            }
+
+        });
+}
+
+/**
  * Resolves with boolean of whether user has access to this post
  * @param {Object} postSnap - postSnap object of post to access
  */
 const currentUserHasPermissions = (postSnap) => {
     return(dispatch, getStore, {getFirestore}) => {
         return new Promise((resolve, reject) => {
-            const db = getFirestore();
 
             const auth = getStore().firebase.auth;
 
@@ -182,8 +189,11 @@ const currentUserHasPermissions = (postSnap) => {
                 return resolve(true);
             }
 
+            /** If following user, has access to post */
             dispatch(checkIfFollower(postSnap.uid))
                 .then(isFollowing => {
+
+                    /** Can determine permissions states here */
                     if(isFollowing) {
                         return resolve(true);
                     }
