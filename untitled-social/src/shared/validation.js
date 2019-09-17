@@ -153,6 +153,27 @@ export const validateContent = (content) => {
 }
 
 /**
+ * Validates formate of topic string
+ * @param {string} topic - name of topic 
+ */
+export const validateTopic = (topic) => {
+    var valid = {};
+
+    if(!topic)  {
+        valid.topic = true;
+        valid.topicMessage = null;
+    } else if(topic.length > 500) {
+        valid.topic = false;
+        valid.topicMessage = "Topic name too long.";
+    } else {
+        valid.topic = true;
+        valid.topicMessage = null;
+    }
+
+    return valid;
+}
+
+/**
  * Returns link in correct format for routing
  */
 export const getValidLink = (link) => {
@@ -204,3 +225,4 @@ export const getPostType = (post, files) => {
     // default to text
     return "text";
 }
+

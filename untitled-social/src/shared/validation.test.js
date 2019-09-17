@@ -1,5 +1,5 @@
 import {validateUsername, validateBio, validateEmail, validatePassword,
-        validateTitle, validateDesc, validateContent, getValidLink} from './validation';
+        validateTitle, validateDesc, validateContent, getValidLink, validateTopic} from './validation';
 
 /**
  * Username validation tests
@@ -214,4 +214,35 @@ describe('content validation', () => {
         expect(getValidLink("http://google.com"))
             .toEqual("http://google.com");
     });
+});
+
+describe('topic validation', () => {
+    test('validate string length', () => {
+        expect(validateTopic(null))
+            .toEqual({topic: true, topicMessage: null});
+
+        expect(validateTopic("asdfasdfjlkasjdflkjasdlfkjlkasdjflkjasdflkjsadlfkjasldkjfas"
+        + "asldkfjasdlfkjasdfkjalskdjflksjadflkjasdlfkjasldkfjlaskdjflkjasdlfkjalskdjfl"
+        + "lkjasdlfkjalskjdflkjasdlkfjlasjdlkfjlkasjdflkjalskjdflkjasdlkfjljasdkfljlask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "asldkfjasdlfkjasdfkjalskdjflksjadflkjasdlfkjasldkfjlaskdjflkjasdlfkjalskdjfl"
+        + "lkjasdlfkjalskjdflkjasdlkfjlasjdlkfjlkasjdflkjalskjdflkjasdlkfjljasdkfljlask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"
+        + "laksjdflkjasdlkfjlkasjdlfkjaslkdjflkasjdflkjasdlfkjsladkjflksadjflkasjdflask"))
+            .toEqual({topic: false, topicMessage: "Topic name too long."});
+    });
+
+    expect(validateTopic("testTopic"))
+        .toEqual({topic: true, topicMessage: null});
 })

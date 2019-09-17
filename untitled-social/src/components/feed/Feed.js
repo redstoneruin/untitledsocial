@@ -128,7 +128,6 @@ class Feed extends Component {
         /** buttons visible when create post form is not */
         var headerButtons = !this.state.createPostFormVisible ? (
             <div className="text-right">
-                    <Button variant="secondary" className="mr-3">Create Topic</Button>
                     <Button className="primary shadow-sm" onClick={this.toggleCreatePostForm}>Create Post</Button>
             </div>
         ) : null;

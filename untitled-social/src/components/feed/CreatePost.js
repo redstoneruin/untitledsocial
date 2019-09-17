@@ -5,7 +5,8 @@ import React, {Component} from 'react';
 import {Card, Form, Button} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
-import {validateTitle, validateDesc, validateContent, getPostType} from '../../shared/validation';
+import {validateTitle, validateDesc, validateContent, 
+    validateTopic, getPostType} from '../../shared/validation';
 import {createUserPost} from '../../store/actions/postActions';
 
 import '../../styles/App.css';
@@ -30,7 +31,9 @@ class CreatePost extends Component {
                 title: false,
                 titleMessage: null,
                 desc: false,
-                descMessage: false
+                descMessage: null,
+                topic: false,
+                topicMessage: null
             },
             validated: false
         }
@@ -106,10 +109,11 @@ class CreatePost extends Component {
         var validTitle = validateTitle(this.state.post.title);
         var validDesc = validateDesc(this.state.post.desc);
         var validContent = validateContent(this.state.post.content);
+        var validTopic = validateTopic(this.state.post.topic);
 
         // combine validated components
-        var valid = Object.assign(validTitle, validDesc, validContent);
-        var validated = valid.title && valid.desc && valid.content;
+        var valid = Object.assign(validTitle, validDesc, validContent, validTopic);
+        var validated = valid.title && valid.desc && valid.content && valid.topic;
 
         
 
@@ -160,6 +164,17 @@ class CreatePost extends Component {
                                 isInvalid={this.state.submitted && !this.state.valid.title}>
                             </Form.Control>
                             <Form.Control.Feedback type="invalid">{this.state.valid.titleMessage}</Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group>
+                            <Form.Label>Topic</Form.Label>
+                            <Form.Control
+                                onChange={this.handleChange}
+                                type="text"
+                                defaultValue={this.state.topic}
+                                isValid={this.state.valid.topic}
+                                isInvalid={this.state.submitted && !this.state.valid.title}>
+                            </Form.Control>
                         </Form.Group>
 
                         <Form.Group className="justify-content-right">

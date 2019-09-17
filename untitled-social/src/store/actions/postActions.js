@@ -487,3 +487,30 @@ const deleteSingleFile = (id) => {
         });
     }
 }
+
+/**
+ * Creates new topic schema in database
+ * @param {string} name - name to provide for new topic 
+ */
+export const createTopic = (name) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        return new Promise(resolve => {
+            const db = getFirestore();
+
+            var topic = {
+                name,
+                desc: "No description has been posted."
+            }
+
+            /** create new collection  */
+            db.collection("topics").add(topic)
+                .then(callback => {
+                    topic = Object.assign(topic, {id: callback.id});
+                    /** add topic id to object */
+                    db.doc("topics/" + callback.id).set(topic)
+                        /** resolve once id complete */
+                        .then(() => {return resolve()});
+                });
+        });
+    }
+}
