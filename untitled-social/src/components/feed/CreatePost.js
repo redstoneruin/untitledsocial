@@ -131,7 +131,7 @@ class CreatePost extends Component {
             return "Upload";
         }
 
-        var returnString;
+        var returnString = "";
         for(var i = 0; i < this.state.files.length; i++) {
             if(i < this.state.files.length - 1) {
                 returnString += this.state.files[i].name + ", ";
@@ -175,6 +175,7 @@ class CreatePost extends Component {
                                 isValid={this.state.valid.topic}
                                 isInvalid={this.state.submitted && !this.state.valid.title}>
                             </Form.Control>
+                            <Form.Control.Feedback type="invalid">{this.state.valid.topicMessage}</Form.Control.Feedback>
                         </Form.Group>
 
                         <Form.Group className="justify-content-right">

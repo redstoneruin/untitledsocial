@@ -168,6 +168,26 @@ export const validateTopic = (topic) => {
     } else {
         valid.topic = true;
         valid.topicMessage = null;
+
+        /** loop through string to ensure valid characters */
+        for(var i = 0; i < topic.length; i++) {
+
+            var charCode = topic.charCodeAt(i);
+
+            /** 
+             * lowercase chars are 97-122 
+             * numerics are 48-57
+             * 45 -> -
+             * 95 -> _
+             */
+            if((charCode < 97 || charCode > 122) 
+            && (charCode < 48 || charCode > 57)
+            && charCode !== 45 && charCode !== 95) {
+                valid.topic = false;
+                valid.topicMessage = "Contains invalid characters. Capitals not allowed."
+                break;
+            }
+        }
     }
 
     return valid;
