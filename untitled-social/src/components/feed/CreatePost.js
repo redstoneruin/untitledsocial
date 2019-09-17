@@ -68,7 +68,6 @@ class CreatePost extends Component {
             //
             post.time = new Date();
             if(!post.content) post.content = "";
-            post.topic = "";
 
             // get post type based on state
             post.type = getPostType(post, this.state.files);
@@ -171,6 +170,7 @@ class CreatePost extends Component {
                             <Form.Control
                                 onChange={this.handleChange}
                                 type="text"
+                                id="topic"
                                 defaultValue={this.state.topic}
                                 isValid={this.state.valid.topic}
                                 isInvalid={this.state.submitted && !this.state.valid.title}>

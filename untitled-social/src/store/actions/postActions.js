@@ -23,8 +23,10 @@ export const createUserPost = (post, files) => {
                 post.commentCount = 0;
 
                 userPostCollection.doc(postId).update(post);
-                // create new postSnap with post info
+
+                /** Create post snapshots */
                 dispatch(createPostSnap(uid, postId, path));
+                dispatch(createTopicSnap(uid, postId, path, post.topic))
 
                 // upload images to storage if necessary
                 if(post.type === "image" || post.type === "album") {
@@ -83,12 +85,9 @@ export const getSingleFileURLFromPostId = (postId) => {
  * @param {string} uid - User's user id
  * @param {string} postId - Id of post to add
  */
-const createPostSnap = (uid, postId) => {
+const createPostSnap = (uid, postId, path) => {
     return(dispatch, getStore, {getFirestore}) => {
         const db = getFirestore();
-
-        // create path to document from params
-        var path = 'users/' + uid +  '/posts/' + postId;
 
         // get post data for snapshot
         db.doc(path).get()
@@ -122,6 +121,64 @@ const createPostSnap = (uid, postId) => {
             })
             // catch errors associated with getting doc from path
             .catch(err => dispatch({type: 'POST_SNAP_ERR', err}));
+    }
+}
+
+/**
+ * Creates snapshot for this topic, referencing the post of a user
+ * @param {string} uid - user's user id
+ * @param {string} postId - post's id
+ * @param {string} path - path of post in db
+ * @param {string} topic - string name of topic 
+ */
+const createTopicSnap = (uid, postId, path, topic) => {
+    return(dispatch, getStore, {getFirestore}) => {
+
+        /** no topic if not filled */
+        if(!topic || topic === "") {
+            return;
+        }
+
+        const db = getFirestore();
+
+        /** get post at path for data */
+        db.doc(path).get()
+            .then(post => {
+                if(post.exists) {
+                    post = post.data();
+
+                    /** Create postsnap in regular format */
+                    var postSnap = {
+                        postId,
+                        uid,
+                        path,
+                        time: post.time,
+                        topic: post.topic
+                    }
+
+                    /** sanity check: ensure lower case before searching / adding to snapshot */
+                    topic = topic.toLowerCase();
+
+                    /** find matching topic string in db */
+                    db.collection("topics").where("name", "==", topic).get()
+                        .then(matchingTopics => {
+                            /** Check for new topic case */
+                            if(matchingTopics.empty) {
+                                /** creat new topic */
+                                dispatch(createTopic(topic))
+                                    .then(id => {
+                                        /** Add snapshot to newly created topic */
+                                        db.doc("topics/" + id).collection("posts").add(postSnap);
+                                    });
+                            } else {
+                                /** at least one matching topic in docs, always take first */
+                                db.doc("topics/" + matchingTopics.docs[0].id)
+                                /** add new post snapshot to posts collection under topic */
+                                .collection("posts").add(postSnap);
+                            }
+                        });
+                }
+            });
     }
 }
 
@@ -492,7 +549,7 @@ const deleteSingleFile = (id) => {
  * Creates new topic schema in database
  * @param {string} name - name to provide for new topic 
  */
-export const createTopic = (name) => {
+const createTopic = (name) => {
     return(dispatch, getStore, {getFirestore}) => {
         return new Promise(resolve => {
             const db = getFirestore();
@@ -509,7 +566,7 @@ export const createTopic = (name) => {
                     /** add topic id to object */
                     db.doc("topics/" + callback.id).set(topic)
                         /** resolve once id complete */
-                        .then(() => {return resolve()});
+                        .then(() => {return resolve(callback.id)});
                 });
         });
     }
