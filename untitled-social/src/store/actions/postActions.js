@@ -481,18 +481,57 @@ export const deletePost = (id) => {
                             /** decide if image is to be removed, then remove post */
                             dispatch(contentDeleteSwitcher(post.type, id))
                                 .then(() => {
-                                /** delete doc at postSnap */
-                                db.doc(postSnap.path).delete()
-                                .then(() => {
-                                    // delete postSnap doc by reference
-                                    db.collection("posts").doc(postSnaps.docs[0].id).delete()
-                                        .then(() => {return resolve(true)});
+                                    /** delete snapshot stored with topic */
+                                    dispatch(deleteTopicSnapshot(postSnap));
+
+                                    /** delete doc at postSnap */
+                                    db.doc(postSnap.path).delete()
+                                    .then(() => {
+                                        // delete postSnap doc by reference
+                                        db.collection("posts").doc(postSnaps.docs[0].id).delete()
+                                            .then(() => {return resolve(true)});
+                                    });
                                 });
                             });
-                        });
             });
         });
         
+    }
+}
+
+/**
+ * Deletes the copy of this snapshot stored with the topic
+ * @param {Object} postSnap - post snapshot object to search for and delete
+ */
+const deleteTopicSnapshot = (postSnap) => {
+    return(dispatch, getStore, {getFirestore}) => {
+        if(!postSnap || postSnap.length === 0) {
+            return;
+        }
+
+        const db = getFirestore();
+
+        /** query for topics */
+        db.collection("topics").where("name", "==", postSnap.topic).get()
+            .then(query => {
+                /** case could not find  */
+                if(query.empty) {
+                    console.log("Warning: could not find topic to delete snapshot from");
+                    return;
+                }
+
+                /** find snapshot within the topic collection */
+                var topicRef = db.doc("topics/" + query.docs[0].id);
+                topicRef.collection("posts").where("postId", "==", postSnap.postId).get()
+                    .then(query => {
+                        if(query.empty) {
+                            console.log("Warning: could  not find post snapshot to delete within topic")
+                            return;
+                        }
+                        /** delete first snapshot in array */
+                        topicRef.collection("posts").doc(query.docs[0].id).delete();
+                    })
+            })
     }
 }
 
