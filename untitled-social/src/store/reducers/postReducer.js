@@ -58,7 +58,7 @@ const postReducer = (state = initState, action) => {
         case 'CLEAR_FEED':
             return {
                 ...state,
-                feed: null,
+                feed: [],
                 feedUpdateError: null
             }
 

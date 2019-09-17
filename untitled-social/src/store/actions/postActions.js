@@ -131,6 +131,8 @@ const createPostSnap = (uid, postId) => {
  */
 export const updateFeed = () => {
     return(dispatch, getStore, {getFirestore}) => {
+        dispatch({type: 'CLEAR_FEED'});
+
         const db = getFirestore();
         // get postSnap collection
         db.collection("posts").orderBy("time", "desc").get()
